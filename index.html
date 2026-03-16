@@ -1,0 +1,2120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leadgen Weekly Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#F0F4FA;color:#1e293b}
+
+.topbar{background:linear-gradient(135deg,#1e3a5f 0%,#1d4ed8 100%);padding:18px 36px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 12px rgba(0,0,0,.3)}
+.topbar h1{color:#fff;font-size:22px;font-weight:700}
+.topbar .sub{color:#bfdbfe;font-size:13px;margin-top:4px}
+.badge{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;margin-left:8px}
+
+/* ── Control bar ────────────────────────────────────────────── */
+.control-bar{
+  background:#1e3a5f;
+  padding:10px 36px;
+  display:flex;align-items:center;gap:20px;flex-wrap:wrap;
+  border-bottom:2px solid #2563EB;
+}
+.ctrl-group{display:flex;align-items:center;gap:8px}
+.ctrl-label{color:#94a3b8;font-size:12px;font-weight:600;white-space:nowrap}
+.preset-btn{
+  padding:5px 13px;border-radius:20px;border:1.5px solid #475569;
+  background:transparent;color:#94a3b8;font-size:12px;font-weight:600;
+  cursor:pointer;transition:all .15s;white-space:nowrap
+}
+.preset-btn.active{background:#2563EB;border-color:#2563EB;color:#fff}
+.preset-btn:hover:not(.active){background:#334155;color:#e2e8f0}
+
+.date-sep{color:#475569;font-size:13px;font-weight:600}
+input[type=date]{
+  background:#0f2340;border:1.5px solid #475569;border-radius:8px;
+  color:#e2e8f0;font-size:12px;font-family:'Segoe UI',Arial,sans-serif;
+  padding:5px 10px;outline:none;cursor:pointer;
+  transition:border-color .15s
+}
+input[type=date]:focus{border-color:#2563EB}
+input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.7);cursor:pointer}
+
+.yr-dividers{display:flex;gap:6px;margin-left:auto}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:4px}
+
+.week-counter{
+  background:rgba(37,99,235,.25);border:1px solid rgba(37,99,235,.5);
+  color:#93c5fd;font-size:12px;font-weight:700;
+  padding:4px 12px;border-radius:20px;white-space:nowrap
+}
+
+/* ── KPIs ────────────────────────────────────────────────────── */
+.kpi-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;padding:16px 36px 8px}
+.kpi{background:#fff;border-radius:10px;padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);border-top:3px solid #2563EB}
+.kpi.green{border-top-color:#22C55E}.kpi.purple{border-top-color:#8B5CF6}
+.kpi.orange{border-top-color:#F97316}.kpi.teal{border-top-color:#0EA5E9}.kpi.pink{border-top-color:#EC4899}
+.kpi-label{font-size:11px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.kpi-value{font-size:24px;font-weight:800;color:#1e293b;margin-top:4px}
+.kpi-sub{font-size:11px;color:#94a3b8;margin-top:2px}
+
+/* ── Charts ──────────────────────────────────────────────────── */
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:8px 36px 20px}
+.chart-card{background:#fff;border-radius:12px;padding:18px 20px 14px;box-shadow:0 1px 6px rgba(0,0,0,.08)}
+.chart-card.wide{grid-column:1 / -1}
+.chart-title{font-size:14px;font-weight:700;color:#1e293b;margin-bottom:3px}
+.chart-sub{font-size:11px;color:#94a3b8;margin-bottom:12px}
+canvas{max-height:220px}
+canvas.tall{max-height:190px}
+
+footer{text-align:center;padding:12px;color:#94a3b8;font-size:11px;border-top:1px solid #e2e8f0;margin-top:4px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <h1>&#128202; Leadgen Weekly Dashboard</h1>
+    <div class="sub">Northbeam Traffic + Klaviyo Lead Generation &middot; Mar 2024 &ndash; Mar 2026</div>
+  </div>
+  <div>
+    <span class="badge" id="top-badge">7 Days</span>
+    <span class="badge">106 Weeks total</span>
+  </div>
+</div>
+
+<div class="control-bar">
+
+  <!-- Date range pickers -->
+  <div class="ctrl-group">
+    <span class="ctrl-label">From</span>
+    <input type="date" id="dt-start" onchange="onDateChange()">
+    <span class="date-sep">&rarr;</span>
+    <input type="date" id="dt-end"   onchange="onDateChange()">
+  </div>
+
+  <!-- Quick presets -->
+  <div class="ctrl-group">
+    <span class="ctrl-label">Quick:</span>
+    <button class="preset-btn active" id="p-7d"   onclick="applyPreset('7d')">Last 7 Days</button>
+    <button class="preset-btn"        id="p-30d"  onclick="applyPreset('30d')">30 Days</button>
+    <button class="preset-btn"        id="p-90d"  onclick="applyPreset('90d')">90 Days</button>
+    <button class="preset-btn"        id="p-6m"   onclick="applyPreset('6m')">6 Months</button>
+    <button class="preset-btn"        id="p-ytd"  onclick="applyPreset('ytd')">2026 YTD</button>
+    <button class="preset-btn"        id="p-2025" onclick="applyPreset('2025')">Full 2025</button>
+    <button class="preset-btn"        id="p-all"  onclick="applyPreset('all')">All Time</button>
+  </div>
+
+  <!-- Year legend + week count -->
+  <div class="yr-dividers">
+    <span><span class="dot" style="background:#3B82F6"></span><span style="color:#94a3b8;font-size:12px">2024</span></span>
+    <span style="margin:0 6px"><span class="dot" style="background:#22C55E"></span><span style="color:#94a3b8;font-size:12px">2025</span></span>
+    <span style="margin-right:12px"><span class="dot" style="background:#F97316"></span><span style="color:#94a3b8;font-size:12px">2026</span></span>
+    <span class="week-counter" id="week-count">— weeks</span>
+  </div>
+
+</div>
+
+<div class="kpi-strip" id="kpi-strip"></div>
+
+<div class="charts-grid">
+  <div class="chart-card wide">
+    <div class="chart-title">Weekly Traffic &mdash; Returning + New Visitors</div>
+    <div class="chart-sub">Northbeam &middot; all channels &middot; green = new visitors, blue = returning</div>
+    <canvas id="c-traffic" class="tall"></canvas>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">Modal View Coverage %</div>
+    <div class="chart-sub">Modal Views &divide; Visitors &middot; red dashed = 90% target</div>
+    <canvas id="c-modal"></canvas>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">% New Visitors</div>
+    <div class="chart-sub">New Visitors &divide; Total Visitors each week</div>
+    <canvas id="c-pctnew"></canvas>
+  </div>
+  <div class="chart-card wide">
+    <div class="chart-title">Email &amp; SMS Leads per Week</div>
+    <div class="chart-sub">Stacked &middot; green = Email Leads (XKwi9D) &middot; orange = SMS Leads (YjSSBZ)</div>
+    <canvas id="c-leads" class="tall"></canvas>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">Leadgen Rate (Email / Visitors)</div>
+    <div class="chart-sub">Primary email capture conversion rate week-over-week</div>
+    <canvas id="c-lgr"></canvas>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">SMS Completion Rate (SMS / Email)</div>
+    <div class="chart-sub">% completing SMS step after email &middot; grey dashed = 40% benchmark</div>
+    <canvas id="c-sms"></canvas>
+  </div>
+  <div class="chart-card wide">
+    <div class="chart-title">Dual Lead Rate vs Leadgen Rate</div>
+    <div class="chart-sub">Purple = (Email+SMS)/Visitors &middot; dashed green = Email only &middot; gap = SMS uplift</div>
+    <canvas id="c-dual" class="tall"></canvas>
+  </div>
+</div>
+
+<footer>
+  Sources: Northbeam CSV (visits / new_visits) &middot; Klaviyo Metric Aggregates (Viewed Form WjiQaY &middot; Email Subs XKwi9D &middot; SMS Subs YjSSBZ) &middot; ISO 8601 week numbering &middot; Generated March 16, 2026
+</footer>
+
+<script>
+const RAW = [
+  {
+    "label": "3/9/24",
+    "yr": 2024,
+    "wk": 10,
+    "ws": "2024-03-09",
+    "we": "2024-03-10",
+    "visits": 32070,
+    "new_vis": 16610,
+    "modal": 23562,
+    "email": 969,
+    "sms": 594,
+    "pct_new": 51.8,
+    "modal_cov": 73.5,
+    "leadgen_rate": 3.02,
+    "dual_rate": 4.87,
+    "sms_completion": 61.3
+  },
+  {
+    "label": "3/11/24",
+    "yr": 2024,
+    "wk": 11,
+    "ws": "2024-03-11",
+    "we": "2024-03-17",
+    "visits": 123615,
+    "new_vis": 50669,
+    "modal": 72789,
+    "email": 2858,
+    "sms": 1703,
+    "pct_new": 41.0,
+    "modal_cov": 58.9,
+    "leadgen_rate": 2.31,
+    "dual_rate": 3.69,
+    "sms_completion": 59.6
+  },
+  {
+    "label": "3/18/24",
+    "yr": 2024,
+    "wk": 12,
+    "ws": "2024-03-18",
+    "we": "2024-03-24",
+    "visits": 123863,
+    "new_vis": 51306,
+    "modal": 71424,
+    "email": 3172,
+    "sms": 1775,
+    "pct_new": 41.4,
+    "modal_cov": 57.7,
+    "leadgen_rate": 2.56,
+    "dual_rate": 3.99,
+    "sms_completion": 56.0
+  },
+  {
+    "label": "3/25/24",
+    "yr": 2024,
+    "wk": 13,
+    "ws": "2024-03-25",
+    "we": "2024-03-31",
+    "visits": 112540,
+    "new_vis": 50237,
+    "modal": 67301,
+    "email": 5019,
+    "sms": 1627,
+    "pct_new": 44.6,
+    "modal_cov": 59.8,
+    "leadgen_rate": 4.46,
+    "dual_rate": 5.91,
+    "sms_completion": 32.4
+  },
+  {
+    "label": "4/1/24",
+    "yr": 2024,
+    "wk": 14,
+    "ws": "2024-04-01",
+    "we": "2024-04-07",
+    "visits": 114158,
+    "new_vis": 54540,
+    "modal": 73452,
+    "email": 8913,
+    "sms": 1545,
+    "pct_new": 47.8,
+    "modal_cov": 64.3,
+    "leadgen_rate": 7.81,
+    "dual_rate": 9.16,
+    "sms_completion": 17.3
+  },
+  {
+    "label": "4/8/24",
+    "yr": 2024,
+    "wk": 15,
+    "ws": "2024-04-08",
+    "we": "2024-04-14",
+    "visits": 105896,
+    "new_vis": 48709,
+    "modal": 65154,
+    "email": 7682,
+    "sms": 1337,
+    "pct_new": 46.0,
+    "modal_cov": 61.5,
+    "leadgen_rate": 7.25,
+    "dual_rate": 8.52,
+    "sms_completion": 17.4
+  },
+  {
+    "label": "4/15/24",
+    "yr": 2024,
+    "wk": 16,
+    "ws": "2024-04-15",
+    "we": "2024-04-21",
+    "visits": 104122,
+    "new_vis": 40156,
+    "modal": 56463,
+    "email": 5856,
+    "sms": 1046,
+    "pct_new": 38.6,
+    "modal_cov": 54.2,
+    "leadgen_rate": 5.62,
+    "dual_rate": 6.63,
+    "sms_completion": 17.9
+  },
+  {
+    "label": "4/22/24",
+    "yr": 2024,
+    "wk": 17,
+    "ws": "2024-04-22",
+    "we": "2024-04-28",
+    "visits": 101920,
+    "new_vis": 42188,
+    "modal": 55338,
+    "email": 5436,
+    "sms": 945,
+    "pct_new": 41.4,
+    "modal_cov": 54.3,
+    "leadgen_rate": 5.33,
+    "dual_rate": 6.26,
+    "sms_completion": 17.4
+  },
+  {
+    "label": "4/29/24",
+    "yr": 2024,
+    "wk": 18,
+    "ws": "2024-04-29",
+    "we": "2024-05-05",
+    "visits": 102682,
+    "new_vis": 48356,
+    "modal": 71977,
+    "email": 9572,
+    "sms": 1173,
+    "pct_new": 47.1,
+    "modal_cov": 70.1,
+    "leadgen_rate": 9.32,
+    "dual_rate": 10.46,
+    "sms_completion": 12.3
+  },
+  {
+    "label": "5/6/24",
+    "yr": 2024,
+    "wk": 19,
+    "ws": "2024-05-06",
+    "we": "2024-05-12",
+    "visits": 106111,
+    "new_vis": 51091,
+    "modal": 69216,
+    "email": 10084,
+    "sms": 1393,
+    "pct_new": 48.1,
+    "modal_cov": 65.2,
+    "leadgen_rate": 9.5,
+    "dual_rate": 10.82,
+    "sms_completion": 13.8
+  },
+  {
+    "label": "5/13/24",
+    "yr": 2024,
+    "wk": 20,
+    "ws": "2024-05-13",
+    "we": "2024-05-19",
+    "visits": 103043,
+    "new_vis": 44098,
+    "modal": 63429,
+    "email": 9881,
+    "sms": 1342,
+    "pct_new": 42.8,
+    "modal_cov": 61.6,
+    "leadgen_rate": 9.59,
+    "dual_rate": 10.89,
+    "sms_completion": 13.6
+  },
+  {
+    "label": "5/20/24",
+    "yr": 2024,
+    "wk": 21,
+    "ws": "2024-05-20",
+    "we": "2024-05-26",
+    "visits": 104798,
+    "new_vis": 43565,
+    "modal": 59239,
+    "email": 7018,
+    "sms": 1179,
+    "pct_new": 41.6,
+    "modal_cov": 56.5,
+    "leadgen_rate": 6.7,
+    "dual_rate": 7.82,
+    "sms_completion": 16.8
+  },
+  {
+    "label": "5/27/24",
+    "yr": 2024,
+    "wk": 22,
+    "ws": "2024-05-27",
+    "we": "2024-06-02",
+    "visits": 127047,
+    "new_vis": 51917,
+    "modal": 67268,
+    "email": 7560,
+    "sms": 1402,
+    "pct_new": 40.9,
+    "modal_cov": 52.9,
+    "leadgen_rate": 5.95,
+    "dual_rate": 7.05,
+    "sms_completion": 18.5
+  },
+  {
+    "label": "6/3/24",
+    "yr": 2024,
+    "wk": 23,
+    "ws": "2024-06-03",
+    "we": "2024-06-09",
+    "visits": 110796,
+    "new_vis": 54471,
+    "modal": 71877,
+    "email": 9426,
+    "sms": 1957,
+    "pct_new": 49.2,
+    "modal_cov": 64.9,
+    "leadgen_rate": 8.51,
+    "dual_rate": 10.27,
+    "sms_completion": 20.8
+  },
+  {
+    "label": "6/10/24",
+    "yr": 2024,
+    "wk": 24,
+    "ws": "2024-06-10",
+    "we": "2024-06-16",
+    "visits": 108215,
+    "new_vis": 51896,
+    "modal": 68237,
+    "email": 8302,
+    "sms": 1861,
+    "pct_new": 48.0,
+    "modal_cov": 63.1,
+    "leadgen_rate": 7.67,
+    "dual_rate": 9.39,
+    "sms_completion": 22.4
+  },
+  {
+    "label": "6/17/24",
+    "yr": 2024,
+    "wk": 25,
+    "ws": "2024-06-17",
+    "we": "2024-06-23",
+    "visits": 120123,
+    "new_vis": 56804,
+    "modal": 74176,
+    "email": 8072,
+    "sms": 1749,
+    "pct_new": 47.3,
+    "modal_cov": 61.8,
+    "leadgen_rate": 6.72,
+    "dual_rate": 8.18,
+    "sms_completion": 21.7
+  },
+  {
+    "label": "6/24/24",
+    "yr": 2024,
+    "wk": 26,
+    "ws": "2024-06-24",
+    "we": "2024-06-30",
+    "visits": 111162,
+    "new_vis": 49680,
+    "modal": 63677,
+    "email": 6278,
+    "sms": 1505,
+    "pct_new": 44.7,
+    "modal_cov": 57.3,
+    "leadgen_rate": 5.65,
+    "dual_rate": 7.0,
+    "sms_completion": 24.0
+  },
+  {
+    "label": "7/1/24",
+    "yr": 2024,
+    "wk": 27,
+    "ws": "2024-07-01",
+    "we": "2024-07-07",
+    "visits": 218430,
+    "new_vis": 101483,
+    "modal": 96282,
+    "email": 7609,
+    "sms": 996,
+    "pct_new": 46.5,
+    "modal_cov": 44.1,
+    "leadgen_rate": 3.48,
+    "dual_rate": 3.94,
+    "sms_completion": 13.1
+  },
+  {
+    "label": "7/8/24",
+    "yr": 2024,
+    "wk": 28,
+    "ws": "2024-07-08",
+    "we": "2024-07-14",
+    "visits": 147177,
+    "new_vis": 73361,
+    "modal": 85276,
+    "email": 8071,
+    "sms": 958,
+    "pct_new": 49.8,
+    "modal_cov": 57.9,
+    "leadgen_rate": 5.48,
+    "dual_rate": 6.13,
+    "sms_completion": 11.9
+  },
+  {
+    "label": "7/15/24",
+    "yr": 2024,
+    "wk": 29,
+    "ws": "2024-07-15",
+    "we": "2024-07-21",
+    "visits": 117799,
+    "new_vis": 63574,
+    "modal": 76946,
+    "email": 7510,
+    "sms": 124,
+    "pct_new": 54.0,
+    "modal_cov": 65.3,
+    "leadgen_rate": 6.38,
+    "dual_rate": 6.48,
+    "sms_completion": 1.7
+  },
+  {
+    "label": "7/22/24",
+    "yr": 2024,
+    "wk": 30,
+    "ws": "2024-07-22",
+    "we": "2024-07-28",
+    "visits": 160093,
+    "new_vis": 78564,
+    "modal": 116198,
+    "email": 9959,
+    "sms": 3174,
+    "pct_new": 49.1,
+    "modal_cov": 72.6,
+    "leadgen_rate": 6.22,
+    "dual_rate": 8.2,
+    "sms_completion": 31.9
+  },
+  {
+    "label": "7/29/24",
+    "yr": 2024,
+    "wk": 31,
+    "ws": "2024-07-29",
+    "we": "2024-08-04",
+    "visits": 169096,
+    "new_vis": 89598,
+    "modal": 129136,
+    "email": 4962,
+    "sms": 2148,
+    "pct_new": 53.0,
+    "modal_cov": 76.4,
+    "leadgen_rate": 2.93,
+    "dual_rate": 4.2,
+    "sms_completion": 43.3
+  },
+  {
+    "label": "8/5/24",
+    "yr": 2024,
+    "wk": 32,
+    "ws": "2024-08-05",
+    "we": "2024-08-11",
+    "visits": 199268,
+    "new_vis": 103616,
+    "modal": 134266,
+    "email": 11383,
+    "sms": 3737,
+    "pct_new": 52.0,
+    "modal_cov": 67.4,
+    "leadgen_rate": 5.71,
+    "dual_rate": 7.59,
+    "sms_completion": 32.8
+  },
+  {
+    "label": "8/12/24",
+    "yr": 2024,
+    "wk": 33,
+    "ws": "2024-08-12",
+    "we": "2024-08-18",
+    "visits": 227693,
+    "new_vis": 104289,
+    "modal": 126163,
+    "email": 13918,
+    "sms": 4808,
+    "pct_new": 45.8,
+    "modal_cov": 55.4,
+    "leadgen_rate": 6.11,
+    "dual_rate": 8.22,
+    "sms_completion": 34.5
+  },
+  {
+    "label": "8/19/24",
+    "yr": 2024,
+    "wk": 34,
+    "ws": "2024-08-19",
+    "we": "2024-08-25",
+    "visits": 179754,
+    "new_vis": 90938,
+    "modal": 119727,
+    "email": 13010,
+    "sms": 4749,
+    "pct_new": 50.6,
+    "modal_cov": 66.6,
+    "leadgen_rate": 7.24,
+    "dual_rate": 9.88,
+    "sms_completion": 36.5
+  },
+  {
+    "label": "8/26/24",
+    "yr": 2024,
+    "wk": 35,
+    "ws": "2024-08-26",
+    "we": "2024-09-01",
+    "visits": 186519,
+    "new_vis": 89869,
+    "modal": 116011,
+    "email": 13368,
+    "sms": 4933,
+    "pct_new": 48.2,
+    "modal_cov": 62.2,
+    "leadgen_rate": 7.17,
+    "dual_rate": 9.81,
+    "sms_completion": 36.9
+  },
+  {
+    "label": "9/2/24",
+    "yr": 2024,
+    "wk": 36,
+    "ws": "2024-09-02",
+    "we": "2024-09-08",
+    "visits": 176315,
+    "new_vis": 82679,
+    "modal": 108124,
+    "email": 13153,
+    "sms": 4749,
+    "pct_new": 46.9,
+    "modal_cov": 61.3,
+    "leadgen_rate": 7.46,
+    "dual_rate": 10.15,
+    "sms_completion": 36.1
+  },
+  {
+    "label": "9/9/24",
+    "yr": 2024,
+    "wk": 37,
+    "ws": "2024-09-09",
+    "we": "2024-09-15",
+    "visits": 233364,
+    "new_vis": 94418,
+    "modal": 116079,
+    "email": 14839,
+    "sms": 5282,
+    "pct_new": 40.5,
+    "modal_cov": 49.7,
+    "leadgen_rate": 6.36,
+    "dual_rate": 8.62,
+    "sms_completion": 35.6
+  },
+  {
+    "label": "9/16/24",
+    "yr": 2024,
+    "wk": 38,
+    "ws": "2024-09-16",
+    "we": "2024-09-22",
+    "visits": 219796,
+    "new_vis": 109235,
+    "modal": 134070,
+    "email": 15643,
+    "sms": 5596,
+    "pct_new": 49.7,
+    "modal_cov": 61.0,
+    "leadgen_rate": 7.12,
+    "dual_rate": 9.66,
+    "sms_completion": 35.8
+  },
+  {
+    "label": "9/23/24",
+    "yr": 2024,
+    "wk": 39,
+    "ws": "2024-09-23",
+    "we": "2024-09-29",
+    "visits": 231679,
+    "new_vis": 118203,
+    "modal": 149695,
+    "email": 16270,
+    "sms": 3757,
+    "pct_new": 51.0,
+    "modal_cov": 64.6,
+    "leadgen_rate": 7.02,
+    "dual_rate": 8.64,
+    "sms_completion": 23.1
+  },
+  {
+    "label": "9/30/24",
+    "yr": 2024,
+    "wk": 40,
+    "ws": "2024-09-30",
+    "we": "2024-10-06",
+    "visits": 224022,
+    "new_vis": 111939,
+    "modal": 134863,
+    "email": 13465,
+    "sms": 7561,
+    "pct_new": 50.0,
+    "modal_cov": 60.2,
+    "leadgen_rate": 6.01,
+    "dual_rate": 9.39,
+    "sms_completion": 56.2
+  },
+  {
+    "label": "10/7/24",
+    "yr": 2024,
+    "wk": 41,
+    "ws": "2024-10-07",
+    "we": "2024-10-13",
+    "visits": 215215,
+    "new_vis": 103020,
+    "modal": 146166,
+    "email": 12424,
+    "sms": 8453,
+    "pct_new": 47.9,
+    "modal_cov": 67.9,
+    "leadgen_rate": 5.77,
+    "dual_rate": 9.7,
+    "sms_completion": 68.0
+  },
+  {
+    "label": "10/14/24",
+    "yr": 2024,
+    "wk": 42,
+    "ws": "2024-10-14",
+    "we": "2024-10-20",
+    "visits": 180519,
+    "new_vis": 80465,
+    "modal": 117884,
+    "email": 10669,
+    "sms": 7437,
+    "pct_new": 44.6,
+    "modal_cov": 65.3,
+    "leadgen_rate": 5.91,
+    "dual_rate": 10.03,
+    "sms_completion": 69.7
+  },
+  {
+    "label": "10/21/24",
+    "yr": 2024,
+    "wk": 43,
+    "ws": "2024-10-21",
+    "we": "2024-10-27",
+    "visits": 165112,
+    "new_vis": 63129,
+    "modal": 93681,
+    "email": 8253,
+    "sms": 5798,
+    "pct_new": 38.2,
+    "modal_cov": 56.7,
+    "leadgen_rate": 5.0,
+    "dual_rate": 8.51,
+    "sms_completion": 70.3
+  },
+  {
+    "label": "10/28/24",
+    "yr": 2024,
+    "wk": 44,
+    "ws": "2024-10-28",
+    "we": "2024-11-03",
+    "visits": 139743,
+    "new_vis": 48184,
+    "modal": 73838,
+    "email": 5865,
+    "sms": 4230,
+    "pct_new": 34.5,
+    "modal_cov": 52.8,
+    "leadgen_rate": 4.2,
+    "dual_rate": 7.22,
+    "sms_completion": 72.1
+  },
+  {
+    "label": "11/4/24",
+    "yr": 2024,
+    "wk": 45,
+    "ws": "2024-11-04",
+    "we": "2024-11-10",
+    "visits": 266290,
+    "new_vis": 86864,
+    "modal": 120250,
+    "email": 9022,
+    "sms": 6620,
+    "pct_new": 32.6,
+    "modal_cov": 45.2,
+    "leadgen_rate": 3.39,
+    "dual_rate": 5.87,
+    "sms_completion": 73.4
+  },
+  {
+    "label": "11/11/24",
+    "yr": 2024,
+    "wk": 46,
+    "ws": "2024-11-11",
+    "we": "2024-11-17",
+    "visits": 122878,
+    "new_vis": 40102,
+    "modal": 67973,
+    "email": 4892,
+    "sms": 3658,
+    "pct_new": 32.6,
+    "modal_cov": 55.3,
+    "leadgen_rate": 3.98,
+    "dual_rate": 6.96,
+    "sms_completion": 74.8
+  },
+  {
+    "label": "11/18/24",
+    "yr": 2024,
+    "wk": 47,
+    "ws": "2024-11-18",
+    "we": "2024-11-24",
+    "visits": 106476,
+    "new_vis": 33502,
+    "modal": 49597,
+    "email": 3453,
+    "sms": 2472,
+    "pct_new": 31.5,
+    "modal_cov": 46.6,
+    "leadgen_rate": 3.24,
+    "dual_rate": 5.56,
+    "sms_completion": 71.6
+  },
+  {
+    "label": "11/25/24",
+    "yr": 2024,
+    "wk": 48,
+    "ws": "2024-11-25",
+    "we": "2024-12-01",
+    "visits": 220745,
+    "new_vis": 65439,
+    "modal": 92596,
+    "email": 4498,
+    "sms": 2814,
+    "pct_new": 29.6,
+    "modal_cov": 41.9,
+    "leadgen_rate": 2.04,
+    "dual_rate": 3.31,
+    "sms_completion": 62.6
+  },
+  {
+    "label": "12/2/24",
+    "yr": 2024,
+    "wk": 49,
+    "ws": "2024-12-02",
+    "we": "2024-12-08",
+    "visits": 112915,
+    "new_vis": 36333,
+    "modal": 53755,
+    "email": 3400,
+    "sms": 2405,
+    "pct_new": 32.2,
+    "modal_cov": 47.6,
+    "leadgen_rate": 3.01,
+    "dual_rate": 5.14,
+    "sms_completion": 70.7
+  },
+  {
+    "label": "12/9/24",
+    "yr": 2024,
+    "wk": 50,
+    "ws": "2024-12-09",
+    "we": "2024-12-15",
+    "visits": 84014,
+    "new_vis": 33163,
+    "modal": 47753,
+    "email": 3396,
+    "sms": 2494,
+    "pct_new": 39.5,
+    "modal_cov": 56.8,
+    "leadgen_rate": 4.04,
+    "dual_rate": 7.01,
+    "sms_completion": 73.4
+  },
+  {
+    "label": "12/16/24",
+    "yr": 2024,
+    "wk": 51,
+    "ws": "2024-12-16",
+    "we": "2024-12-22",
+    "visits": 64244,
+    "new_vis": 30618,
+    "modal": 42862,
+    "email": 3179,
+    "sms": 1966,
+    "pct_new": 47.7,
+    "modal_cov": 66.7,
+    "leadgen_rate": 4.95,
+    "dual_rate": 8.01,
+    "sms_completion": 61.8
+  },
+  {
+    "label": "12/23/24",
+    "yr": 2024,
+    "wk": 52,
+    "ws": "2024-12-23",
+    "we": "2024-12-29",
+    "visits": 91091,
+    "new_vis": 50386,
+    "modal": 63535,
+    "email": 5171,
+    "sms": 3382,
+    "pct_new": 55.3,
+    "modal_cov": 69.7,
+    "leadgen_rate": 5.68,
+    "dual_rate": 9.39,
+    "sms_completion": 65.4
+  },
+  {
+    "label": "12/30/24",
+    "yr": 2025,
+    "wk": 1,
+    "ws": "2024-12-30",
+    "we": "2025-01-05",
+    "visits": 188627,
+    "new_vis": 92614,
+    "modal": 131085,
+    "email": 9320,
+    "sms": 6357,
+    "pct_new": 49.1,
+    "modal_cov": 69.5,
+    "leadgen_rate": 4.94,
+    "dual_rate": 8.31,
+    "sms_completion": 68.2
+  },
+  {
+    "label": "1/6/25",
+    "yr": 2025,
+    "wk": 2,
+    "ws": "2025-01-06",
+    "we": "2025-01-12",
+    "visits": 221037,
+    "new_vis": 99598,
+    "modal": 146852,
+    "email": 10461,
+    "sms": 7780,
+    "pct_new": 45.1,
+    "modal_cov": 66.4,
+    "leadgen_rate": 4.73,
+    "dual_rate": 8.25,
+    "sms_completion": 74.4
+  },
+  {
+    "label": "1/13/25",
+    "yr": 2025,
+    "wk": 3,
+    "ws": "2025-01-13",
+    "we": "2025-01-19",
+    "visits": 169621,
+    "new_vis": 70070,
+    "modal": 106090,
+    "email": 7699,
+    "sms": 5482,
+    "pct_new": 41.3,
+    "modal_cov": 62.5,
+    "leadgen_rate": 4.54,
+    "dual_rate": 7.77,
+    "sms_completion": 71.2
+  },
+  {
+    "label": "1/20/25",
+    "yr": 2025,
+    "wk": 4,
+    "ws": "2025-01-20",
+    "we": "2025-01-26",
+    "visits": 160029,
+    "new_vis": 60236,
+    "modal": 86587,
+    "email": 6215,
+    "sms": 4531,
+    "pct_new": 37.6,
+    "modal_cov": 54.1,
+    "leadgen_rate": 3.88,
+    "dual_rate": 6.72,
+    "sms_completion": 72.9
+  },
+  {
+    "label": "1/27/25",
+    "yr": 2025,
+    "wk": 5,
+    "ws": "2025-01-27",
+    "we": "2025-02-02",
+    "visits": 141537,
+    "new_vis": 53555,
+    "modal": 78571,
+    "email": 5062,
+    "sms": 3710,
+    "pct_new": 37.8,
+    "modal_cov": 55.5,
+    "leadgen_rate": 3.58,
+    "dual_rate": 6.2,
+    "sms_completion": 73.3
+  },
+  {
+    "label": "2/3/25",
+    "yr": 2025,
+    "wk": 6,
+    "ws": "2025-02-03",
+    "we": "2025-02-09",
+    "visits": 123704,
+    "new_vis": 48945,
+    "modal": 71769,
+    "email": 5003,
+    "sms": 3653,
+    "pct_new": 39.6,
+    "modal_cov": 58.0,
+    "leadgen_rate": 4.04,
+    "dual_rate": 7.0,
+    "sms_completion": 73.0
+  },
+  {
+    "label": "2/10/25",
+    "yr": 2025,
+    "wk": 7,
+    "ws": "2025-02-10",
+    "we": "2025-02-16",
+    "visits": 153112,
+    "new_vis": 61839,
+    "modal": 56724,
+    "email": 3618,
+    "sms": 2726,
+    "pct_new": 40.4,
+    "modal_cov": 37.0,
+    "leadgen_rate": 2.36,
+    "dual_rate": 4.14,
+    "sms_completion": 75.3
+  },
+  {
+    "label": "2/17/25",
+    "yr": 2025,
+    "wk": 8,
+    "ws": "2025-02-17",
+    "we": "2025-02-23",
+    "visits": 171930,
+    "new_vis": 71779,
+    "modal": 83917,
+    "email": 6011,
+    "sms": 4400,
+    "pct_new": 41.7,
+    "modal_cov": 48.8,
+    "leadgen_rate": 3.5,
+    "dual_rate": 6.06,
+    "sms_completion": 73.2
+  },
+  {
+    "label": "2/24/25",
+    "yr": 2025,
+    "wk": 9,
+    "ws": "2025-02-24",
+    "we": "2025-03-02",
+    "visits": 197872,
+    "new_vis": 89033,
+    "modal": 125116,
+    "email": 8605,
+    "sms": 6531,
+    "pct_new": 45.0,
+    "modal_cov": 63.2,
+    "leadgen_rate": 4.35,
+    "dual_rate": 7.65,
+    "sms_completion": 75.9
+  },
+  {
+    "label": "3/3/25",
+    "yr": 2025,
+    "wk": 10,
+    "ws": "2025-03-03",
+    "we": "2025-03-09",
+    "visits": 244276,
+    "new_vis": 117084,
+    "modal": 154960,
+    "email": 12145,
+    "sms": 8919,
+    "pct_new": 47.9,
+    "modal_cov": 63.4,
+    "leadgen_rate": 4.97,
+    "dual_rate": 8.62,
+    "sms_completion": 73.4
+  },
+  {
+    "label": "3/10/25",
+    "yr": 2025,
+    "wk": 11,
+    "ws": "2025-03-10",
+    "we": "2025-03-16",
+    "visits": 209640,
+    "new_vis": 101021,
+    "modal": 131874,
+    "email": 10222,
+    "sms": 11297,
+    "pct_new": 48.2,
+    "modal_cov": 62.9,
+    "leadgen_rate": 4.88,
+    "dual_rate": 10.26,
+    "sms_completion": 110.5
+  },
+  {
+    "label": "3/17/25",
+    "yr": 2025,
+    "wk": 12,
+    "ws": "2025-03-17",
+    "we": "2025-03-23",
+    "visits": 176369,
+    "new_vis": 80633,
+    "modal": 135801,
+    "email": 7859,
+    "sms": 5859,
+    "pct_new": 45.7,
+    "modal_cov": 77.0,
+    "leadgen_rate": 4.46,
+    "dual_rate": 7.78,
+    "sms_completion": 74.6
+  },
+  {
+    "label": "3/24/25",
+    "yr": 2025,
+    "wk": 13,
+    "ws": "2025-03-24",
+    "we": "2025-03-30",
+    "visits": 174095,
+    "new_vis": 65268,
+    "modal": 119262,
+    "email": 7088,
+    "sms": 5233,
+    "pct_new": 37.5,
+    "modal_cov": 68.5,
+    "leadgen_rate": 4.07,
+    "dual_rate": 7.08,
+    "sms_completion": 73.8
+  },
+  {
+    "label": "3/31/25",
+    "yr": 2025,
+    "wk": 14,
+    "ws": "2025-03-31",
+    "we": "2025-04-06",
+    "visits": 164388,
+    "new_vis": 73785,
+    "modal": 123207,
+    "email": 5313,
+    "sms": 3722,
+    "pct_new": 44.9,
+    "modal_cov": 74.9,
+    "leadgen_rate": 3.23,
+    "dual_rate": 5.5,
+    "sms_completion": 70.1
+  },
+  {
+    "label": "4/7/25",
+    "yr": 2025,
+    "wk": 15,
+    "ws": "2025-04-07",
+    "we": "2025-04-13",
+    "visits": 134609,
+    "new_vis": 45436,
+    "modal": 59488,
+    "email": 2984,
+    "sms": 2167,
+    "pct_new": 33.8,
+    "modal_cov": 44.2,
+    "leadgen_rate": 2.22,
+    "dual_rate": 3.83,
+    "sms_completion": 72.6
+  },
+  {
+    "label": "4/14/25",
+    "yr": 2025,
+    "wk": 16,
+    "ws": "2025-04-14",
+    "we": "2025-04-20",
+    "visits": 110012,
+    "new_vis": 42360,
+    "modal": 49302,
+    "email": 2930,
+    "sms": 2019,
+    "pct_new": 38.5,
+    "modal_cov": 44.8,
+    "leadgen_rate": 2.66,
+    "dual_rate": 4.5,
+    "sms_completion": 68.9
+  },
+  {
+    "label": "4/21/25",
+    "yr": 2025,
+    "wk": 17,
+    "ws": "2025-04-21",
+    "we": "2025-04-27",
+    "visits": 137209,
+    "new_vis": 54289,
+    "modal": 58263,
+    "email": 3746,
+    "sms": 2714,
+    "pct_new": 39.6,
+    "modal_cov": 42.5,
+    "leadgen_rate": 2.73,
+    "dual_rate": 4.71,
+    "sms_completion": 72.5
+  },
+  {
+    "label": "4/28/25",
+    "yr": 2025,
+    "wk": 18,
+    "ws": "2025-04-28",
+    "we": "2025-05-04",
+    "visits": 120223,
+    "new_vis": 49397,
+    "modal": 55082,
+    "email": 3849,
+    "sms": 2776,
+    "pct_new": 41.1,
+    "modal_cov": 45.8,
+    "leadgen_rate": 3.2,
+    "dual_rate": 5.51,
+    "sms_completion": 72.1
+  },
+  {
+    "label": "5/5/25",
+    "yr": 2025,
+    "wk": 19,
+    "ws": "2025-05-05",
+    "we": "2025-05-11",
+    "visits": 106758,
+    "new_vis": 45838,
+    "modal": 47583,
+    "email": 3256,
+    "sms": 2348,
+    "pct_new": 42.9,
+    "modal_cov": 44.6,
+    "leadgen_rate": 3.05,
+    "dual_rate": 5.25,
+    "sms_completion": 72.1
+  },
+  {
+    "label": "5/12/25",
+    "yr": 2025,
+    "wk": 20,
+    "ws": "2025-05-12",
+    "we": "2025-05-18",
+    "visits": 95325,
+    "new_vis": 41476,
+    "modal": 43587,
+    "email": 3062,
+    "sms": 2201,
+    "pct_new": 43.5,
+    "modal_cov": 45.7,
+    "leadgen_rate": 3.21,
+    "dual_rate": 5.52,
+    "sms_completion": 71.9
+  },
+  {
+    "label": "5/19/25",
+    "yr": 2025,
+    "wk": 21,
+    "ws": "2025-05-19",
+    "we": "2025-05-25",
+    "visits": 93707,
+    "new_vis": 40308,
+    "modal": 42743,
+    "email": 3118,
+    "sms": 2265,
+    "pct_new": 43.0,
+    "modal_cov": 45.6,
+    "leadgen_rate": 3.33,
+    "dual_rate": 5.74,
+    "sms_completion": 72.6
+  },
+  {
+    "label": "5/26/25",
+    "yr": 2025,
+    "wk": 22,
+    "ws": "2025-05-26",
+    "we": "2025-06-01",
+    "visits": 98786,
+    "new_vis": 39048,
+    "modal": 44245,
+    "email": 3445,
+    "sms": 2405,
+    "pct_new": 39.5,
+    "modal_cov": 44.8,
+    "leadgen_rate": 3.49,
+    "dual_rate": 5.92,
+    "sms_completion": 69.8
+  },
+  {
+    "label": "6/2/25",
+    "yr": 2025,
+    "wk": 23,
+    "ws": "2025-06-02",
+    "we": "2025-06-08",
+    "visits": 112161,
+    "new_vis": 49411,
+    "modal": 59224,
+    "email": 3256,
+    "sms": 2265,
+    "pct_new": 44.1,
+    "modal_cov": 52.8,
+    "leadgen_rate": 2.9,
+    "dual_rate": 4.92,
+    "sms_completion": 69.6
+  },
+  {
+    "label": "6/9/25",
+    "yr": 2025,
+    "wk": 24,
+    "ws": "2025-06-09",
+    "we": "2025-06-15",
+    "visits": 141178,
+    "new_vis": 71021,
+    "modal": 82276,
+    "email": 4775,
+    "sms": 3462,
+    "pct_new": 50.3,
+    "modal_cov": 58.3,
+    "leadgen_rate": 3.38,
+    "dual_rate": 5.83,
+    "sms_completion": 72.5
+  },
+  {
+    "label": "6/16/25",
+    "yr": 2025,
+    "wk": 25,
+    "ws": "2025-06-16",
+    "we": "2025-06-22",
+    "visits": 137641,
+    "new_vis": 58003,
+    "modal": 70071,
+    "email": 3733,
+    "sms": 2787,
+    "pct_new": 42.1,
+    "modal_cov": 50.9,
+    "leadgen_rate": 2.71,
+    "dual_rate": 4.74,
+    "sms_completion": 74.7
+  },
+  {
+    "label": "6/23/25",
+    "yr": 2025,
+    "wk": 26,
+    "ws": "2025-06-23",
+    "we": "2025-06-29",
+    "visits": 133831,
+    "new_vis": 50423,
+    "modal": 71911,
+    "email": 3654,
+    "sms": 2820,
+    "pct_new": 37.7,
+    "modal_cov": 53.7,
+    "leadgen_rate": 2.73,
+    "dual_rate": 4.84,
+    "sms_completion": 77.2
+  },
+  {
+    "label": "6/30/25",
+    "yr": 2025,
+    "wk": 27,
+    "ws": "2025-06-30",
+    "we": "2025-07-06",
+    "visits": 124728,
+    "new_vis": 63953,
+    "modal": 84663,
+    "email": 4288,
+    "sms": 3039,
+    "pct_new": 51.3,
+    "modal_cov": 67.9,
+    "leadgen_rate": 3.44,
+    "dual_rate": 5.87,
+    "sms_completion": 70.9
+  },
+  {
+    "label": "7/7/25",
+    "yr": 2025,
+    "wk": 28,
+    "ws": "2025-07-07",
+    "we": "2025-07-13",
+    "visits": 141121,
+    "new_vis": 69884,
+    "modal": 91081,
+    "email": 4033,
+    "sms": 2871,
+    "pct_new": 49.5,
+    "modal_cov": 64.5,
+    "leadgen_rate": 2.86,
+    "dual_rate": 4.89,
+    "sms_completion": 71.2
+  },
+  {
+    "label": "7/14/25",
+    "yr": 2025,
+    "wk": 29,
+    "ws": "2025-07-14",
+    "we": "2025-07-20",
+    "visits": 134277,
+    "new_vis": 65617,
+    "modal": 98512,
+    "email": 4311,
+    "sms": 3112,
+    "pct_new": 48.9,
+    "modal_cov": 73.4,
+    "leadgen_rate": 3.21,
+    "dual_rate": 5.53,
+    "sms_completion": 72.2
+  },
+  {
+    "label": "7/21/25",
+    "yr": 2025,
+    "wk": 30,
+    "ws": "2025-07-21",
+    "we": "2025-07-27",
+    "visits": 231112,
+    "new_vis": 112702,
+    "modal": 137467,
+    "email": 9404,
+    "sms": 6905,
+    "pct_new": 48.8,
+    "modal_cov": 59.5,
+    "leadgen_rate": 4.07,
+    "dual_rate": 7.06,
+    "sms_completion": 73.4
+  },
+  {
+    "label": "7/28/25",
+    "yr": 2025,
+    "wk": 31,
+    "ws": "2025-07-28",
+    "we": "2025-08-03",
+    "visits": 192598,
+    "new_vis": 98924,
+    "modal": 122558,
+    "email": 8530,
+    "sms": 5902,
+    "pct_new": 51.4,
+    "modal_cov": 63.6,
+    "leadgen_rate": 4.43,
+    "dual_rate": 7.49,
+    "sms_completion": 69.2
+  },
+  {
+    "label": "8/4/25",
+    "yr": 2025,
+    "wk": 32,
+    "ws": "2025-08-04",
+    "we": "2025-08-10",
+    "visits": 131529,
+    "new_vis": 70692,
+    "modal": 89426,
+    "email": 3302,
+    "sms": 2415,
+    "pct_new": 53.7,
+    "modal_cov": 68.0,
+    "leadgen_rate": 2.51,
+    "dual_rate": 4.35,
+    "sms_completion": 73.1
+  },
+  {
+    "label": "8/11/25",
+    "yr": 2025,
+    "wk": 33,
+    "ws": "2025-08-11",
+    "we": "2025-08-17",
+    "visits": 125811,
+    "new_vis": 69927,
+    "modal": 86193,
+    "email": 3047,
+    "sms": 2126,
+    "pct_new": 55.6,
+    "modal_cov": 68.5,
+    "leadgen_rate": 2.42,
+    "dual_rate": 4.11,
+    "sms_completion": 69.8
+  },
+  {
+    "label": "8/18/25",
+    "yr": 2025,
+    "wk": 34,
+    "ws": "2025-08-18",
+    "we": "2025-08-24",
+    "visits": 158960,
+    "new_vis": 72940,
+    "modal": 95355,
+    "email": 4326,
+    "sms": 3234,
+    "pct_new": 45.9,
+    "modal_cov": 60.0,
+    "leadgen_rate": 2.72,
+    "dual_rate": 4.76,
+    "sms_completion": 74.8
+  },
+  {
+    "label": "8/25/25",
+    "yr": 2025,
+    "wk": 35,
+    "ws": "2025-08-25",
+    "we": "2025-08-31",
+    "visits": 150889,
+    "new_vis": 65999,
+    "modal": 90804,
+    "email": 3499,
+    "sms": 2542,
+    "pct_new": 43.7,
+    "modal_cov": 60.2,
+    "leadgen_rate": 2.32,
+    "dual_rate": 4.0,
+    "sms_completion": 72.6
+  },
+  {
+    "label": "9/1/25",
+    "yr": 2025,
+    "wk": 36,
+    "ws": "2025-09-01",
+    "we": "2025-09-07",
+    "visits": 132567,
+    "new_vis": 69636,
+    "modal": 89634,
+    "email": 3825,
+    "sms": 2852,
+    "pct_new": 52.5,
+    "modal_cov": 67.6,
+    "leadgen_rate": 2.89,
+    "dual_rate": 5.04,
+    "sms_completion": 74.6
+  },
+  {
+    "label": "9/8/25",
+    "yr": 2025,
+    "wk": 37,
+    "ws": "2025-09-08",
+    "we": "2025-09-14",
+    "visits": 119246,
+    "new_vis": 59138,
+    "modal": 72219,
+    "email": 2561,
+    "sms": 1880,
+    "pct_new": 49.6,
+    "modal_cov": 60.6,
+    "leadgen_rate": 2.15,
+    "dual_rate": 3.72,
+    "sms_completion": 73.4
+  },
+  {
+    "label": "9/15/25",
+    "yr": 2025,
+    "wk": 38,
+    "ws": "2025-09-15",
+    "we": "2025-09-21",
+    "visits": 163472,
+    "new_vis": 69211,
+    "modal": 103353,
+    "email": 2691,
+    "sms": 1901,
+    "pct_new": 42.3,
+    "modal_cov": 63.2,
+    "leadgen_rate": 1.65,
+    "dual_rate": 2.81,
+    "sms_completion": 70.6
+  },
+  {
+    "label": "9/22/25",
+    "yr": 2025,
+    "wk": 39,
+    "ws": "2025-09-22",
+    "we": "2025-09-28",
+    "visits": 155409,
+    "new_vis": 79363,
+    "modal": 127624,
+    "email": 3807,
+    "sms": 2527,
+    "pct_new": 51.1,
+    "modal_cov": 82.1,
+    "leadgen_rate": 2.45,
+    "dual_rate": 4.08,
+    "sms_completion": 66.4
+  },
+  {
+    "label": "9/29/25",
+    "yr": 2025,
+    "wk": 40,
+    "ws": "2025-09-29",
+    "we": "2025-10-05",
+    "visits": 192589,
+    "new_vis": 105137,
+    "modal": 139852,
+    "email": 7876,
+    "sms": 4351,
+    "pct_new": 54.6,
+    "modal_cov": 72.6,
+    "leadgen_rate": 4.09,
+    "dual_rate": 6.35,
+    "sms_completion": 55.2
+  },
+  {
+    "label": "10/6/25",
+    "yr": 2025,
+    "wk": 41,
+    "ws": "2025-10-06",
+    "we": "2025-10-12",
+    "visits": 167342,
+    "new_vis": 91359,
+    "modal": 117723,
+    "email": 6085,
+    "sms": 3349,
+    "pct_new": 54.6,
+    "modal_cov": 70.3,
+    "leadgen_rate": 3.64,
+    "dual_rate": 5.64,
+    "sms_completion": 55.0
+  },
+  {
+    "label": "10/13/25",
+    "yr": 2025,
+    "wk": 42,
+    "ws": "2025-10-13",
+    "we": "2025-10-19",
+    "visits": 145184,
+    "new_vis": 71641,
+    "modal": 92336,
+    "email": 4106,
+    "sms": 2534,
+    "pct_new": 49.3,
+    "modal_cov": 63.6,
+    "leadgen_rate": 2.83,
+    "dual_rate": 4.57,
+    "sms_completion": 61.7
+  },
+  {
+    "label": "10/20/25",
+    "yr": 2025,
+    "wk": 43,
+    "ws": "2025-10-20",
+    "we": "2025-10-26",
+    "visits": 116188,
+    "new_vis": 52319,
+    "modal": 67561,
+    "email": 2276,
+    "sms": 1486,
+    "pct_new": 45.0,
+    "modal_cov": 58.1,
+    "leadgen_rate": 1.96,
+    "dual_rate": 3.24,
+    "sms_completion": 65.3
+  },
+  {
+    "label": "10/27/25",
+    "yr": 2025,
+    "wk": 44,
+    "ws": "2025-10-27",
+    "we": "2025-11-02",
+    "visits": 104861,
+    "new_vis": 46387,
+    "modal": 58211,
+    "email": 2012,
+    "sms": 1361,
+    "pct_new": 44.2,
+    "modal_cov": 55.5,
+    "leadgen_rate": 1.92,
+    "dual_rate": 3.22,
+    "sms_completion": 67.6
+  },
+  {
+    "label": "11/3/25",
+    "yr": 2025,
+    "wk": 45,
+    "ws": "2025-11-03",
+    "we": "2025-11-09",
+    "visits": 167968,
+    "new_vis": 63790,
+    "modal": 87715,
+    "email": 3372,
+    "sms": 2665,
+    "pct_new": 38.0,
+    "modal_cov": 52.2,
+    "leadgen_rate": 2.01,
+    "dual_rate": 3.59,
+    "sms_completion": 79.0
+  },
+  {
+    "label": "11/10/25",
+    "yr": 2025,
+    "wk": 46,
+    "ws": "2025-11-10",
+    "we": "2025-11-16",
+    "visits": 158068,
+    "new_vis": 71926,
+    "modal": 101607,
+    "email": 4463,
+    "sms": 3298,
+    "pct_new": 45.5,
+    "modal_cov": 64.3,
+    "leadgen_rate": 2.82,
+    "dual_rate": 4.91,
+    "sms_completion": 73.9
+  },
+  {
+    "label": "11/17/25",
+    "yr": 2025,
+    "wk": 47,
+    "ws": "2025-11-17",
+    "we": "2025-11-23",
+    "visits": 152527,
+    "new_vis": 68309,
+    "modal": 92909,
+    "email": 4487,
+    "sms": 3260,
+    "pct_new": 44.8,
+    "modal_cov": 60.9,
+    "leadgen_rate": 2.94,
+    "dual_rate": 5.08,
+    "sms_completion": 72.7
+  },
+  {
+    "label": "11/24/25",
+    "yr": 2025,
+    "wk": 48,
+    "ws": "2025-11-24",
+    "we": "2025-11-30",
+    "visits": 187092,
+    "new_vis": 65831,
+    "modal": 95170,
+    "email": 5446,
+    "sms": 3921,
+    "pct_new": 35.2,
+    "modal_cov": 50.9,
+    "leadgen_rate": 2.91,
+    "dual_rate": 5.01,
+    "sms_completion": 72.0
+  },
+  {
+    "label": "12/1/25",
+    "yr": 2025,
+    "wk": 49,
+    "ws": "2025-12-01",
+    "we": "2025-12-07",
+    "visits": 153192,
+    "new_vis": 74314,
+    "modal": 116339,
+    "email": 3910,
+    "sms": 3014,
+    "pct_new": 48.5,
+    "modal_cov": 75.9,
+    "leadgen_rate": 2.55,
+    "dual_rate": 4.52,
+    "sms_completion": 77.1
+  },
+  {
+    "label": "12/8/25",
+    "yr": 2025,
+    "wk": 50,
+    "ws": "2025-12-08",
+    "we": "2025-12-14",
+    "visits": 113965,
+    "new_vis": 59084,
+    "modal": 94582,
+    "email": 3716,
+    "sms": 2710,
+    "pct_new": 51.8,
+    "modal_cov": 83.0,
+    "leadgen_rate": 3.26,
+    "dual_rate": 5.64,
+    "sms_completion": 72.9
+  },
+  {
+    "label": "12/15/25",
+    "yr": 2025,
+    "wk": 51,
+    "ws": "2025-12-15",
+    "we": "2025-12-21",
+    "visits": 68546,
+    "new_vis": 39165,
+    "modal": 51869,
+    "email": 2437,
+    "sms": 1748,
+    "pct_new": 57.1,
+    "modal_cov": 75.7,
+    "leadgen_rate": 3.56,
+    "dual_rate": 6.11,
+    "sms_completion": 71.7
+  },
+  {
+    "label": "12/22/25",
+    "yr": 2025,
+    "wk": 52,
+    "ws": "2025-12-22",
+    "we": "2025-12-28",
+    "visits": 54143,
+    "new_vis": 30593,
+    "modal": 41990,
+    "email": 1346,
+    "sms": 959,
+    "pct_new": 56.5,
+    "modal_cov": 77.6,
+    "leadgen_rate": 2.49,
+    "dual_rate": 4.26,
+    "sms_completion": 71.2
+  },
+  {
+    "label": "12/29/25",
+    "yr": 2026,
+    "wk": 1,
+    "ws": "2025-12-29",
+    "we": "2026-01-04",
+    "visits": 111733,
+    "new_vis": 58502,
+    "modal": 81303,
+    "email": 3575,
+    "sms": 2477,
+    "pct_new": 52.4,
+    "modal_cov": 72.8,
+    "leadgen_rate": 3.2,
+    "dual_rate": 5.42,
+    "sms_completion": 69.3
+  },
+  {
+    "label": "1/5/26",
+    "yr": 2026,
+    "wk": 2,
+    "ws": "2026-01-05",
+    "we": "2026-01-11",
+    "visits": 132308,
+    "new_vis": 65695,
+    "modal": 91079,
+    "email": 5137,
+    "sms": 3377,
+    "pct_new": 49.7,
+    "modal_cov": 68.8,
+    "leadgen_rate": 3.88,
+    "dual_rate": 6.43,
+    "sms_completion": 65.7
+  },
+  {
+    "label": "1/12/26",
+    "yr": 2026,
+    "wk": 3,
+    "ws": "2026-01-12",
+    "we": "2026-01-18",
+    "visits": 149159,
+    "new_vis": 82988,
+    "modal": 109636,
+    "email": 7911,
+    "sms": 4826,
+    "pct_new": 55.6,
+    "modal_cov": 73.5,
+    "leadgen_rate": 5.3,
+    "dual_rate": 8.54,
+    "sms_completion": 61.0
+  },
+  {
+    "label": "1/19/26",
+    "yr": 2026,
+    "wk": 4,
+    "ws": "2026-01-19",
+    "we": "2026-01-25",
+    "visits": 158774,
+    "new_vis": 71758,
+    "modal": 100155,
+    "email": 6349,
+    "sms": 3416,
+    "pct_new": 45.2,
+    "modal_cov": 63.1,
+    "leadgen_rate": 4.0,
+    "dual_rate": 6.15,
+    "sms_completion": 53.8
+  },
+  {
+    "label": "1/26/26",
+    "yr": 2026,
+    "wk": 5,
+    "ws": "2026-01-26",
+    "we": "2026-02-01",
+    "visits": 142410,
+    "new_vis": 65981,
+    "modal": 96613,
+    "email": 5985,
+    "sms": 3198,
+    "pct_new": 46.3,
+    "modal_cov": 67.8,
+    "leadgen_rate": 4.2,
+    "dual_rate": 6.45,
+    "sms_completion": 53.4
+  },
+  {
+    "label": "2/2/26",
+    "yr": 2026,
+    "wk": 6,
+    "ws": "2026-02-02",
+    "we": "2026-02-08",
+    "visits": 131727,
+    "new_vis": 62189,
+    "modal": 89923,
+    "email": 5088,
+    "sms": 2698,
+    "pct_new": 47.2,
+    "modal_cov": 68.3,
+    "leadgen_rate": 3.86,
+    "dual_rate": 5.91,
+    "sms_completion": 53.0
+  },
+  {
+    "label": "2/9/26",
+    "yr": 2026,
+    "wk": 7,
+    "ws": "2026-02-09",
+    "we": "2026-02-15",
+    "visits": 105912,
+    "new_vis": 53543,
+    "modal": 83066,
+    "email": 4011,
+    "sms": 1949,
+    "pct_new": 50.6,
+    "modal_cov": 78.4,
+    "leadgen_rate": 3.79,
+    "dual_rate": 5.63,
+    "sms_completion": 48.6
+  },
+  {
+    "label": "2/16/26",
+    "yr": 2026,
+    "wk": 8,
+    "ws": "2026-02-16",
+    "we": "2026-02-22",
+    "visits": 127586,
+    "new_vis": 60426,
+    "modal": 107095,
+    "email": 4702,
+    "sms": 1890,
+    "pct_new": 47.4,
+    "modal_cov": 83.9,
+    "leadgen_rate": 3.69,
+    "dual_rate": 5.17,
+    "sms_completion": 40.2
+  },
+  {
+    "label": "2/23/26",
+    "yr": 2026,
+    "wk": 9,
+    "ws": "2026-02-23",
+    "we": "2026-03-01",
+    "visits": 123612,
+    "new_vis": 60154,
+    "modal": 96916,
+    "email": 4423,
+    "sms": 1814,
+    "pct_new": 48.7,
+    "modal_cov": 78.4,
+    "leadgen_rate": 3.58,
+    "dual_rate": 5.05,
+    "sms_completion": 41.0
+  },
+  {
+    "label": "3/2/26",
+    "yr": 2026,
+    "wk": 10,
+    "ws": "2026-03-02",
+    "we": "2026-03-08",
+    "visits": 117901,
+    "new_vis": 50340,
+    "modal": 75074,
+    "email": 2991,
+    "sms": 1429,
+    "pct_new": 42.7,
+    "modal_cov": 63.7,
+    "leadgen_rate": 2.54,
+    "dual_rate": 3.75,
+    "sms_completion": 47.8
+  },
+  {
+    "label": "3/9/26",
+    "yr": 2026,
+    "wk": 11,
+    "ws": "2026-03-09",
+    "we": "2026-03-15",
+    "visits": 115099,
+    "new_vis": 60218,
+    "modal": 88520,
+    "email": 4428,
+    "sms": 2260,
+    "pct_new": 52.3,
+    "modal_cov": 76.9,
+    "leadgen_rate": 3.85,
+    "dual_rate": 5.81,
+    "sms_completion": 51.0
+  }
+];
+const DATA_MIN = '2024-03-09';
+const DATA_MAX = '2026-03-15';
+
+// ── date helpers ─────────────────────────────────────────────────────────────
+function addDays(dateStr, n){
+  const d = new Date(dateStr + 'T12:00:00');
+  d.setDate(d.getDate() + n);
+  return d.toISOString().slice(0,10);
+}
+function addMonths(dateStr, n){
+  const d = new Date(dateStr + 'T12:00:00');
+  d.setMonth(d.getMonth() + n);
+  return d.toISOString().slice(0,10);
+}
+
+// ── presets ───────────────────────────────────────────────────────────────────
+const PRESETS = {
+  '7d':   ()=>({ s: addDays(DATA_MAX,-6),       e: DATA_MAX }),
+  '30d':  ()=>({ s: addDays(DATA_MAX,-29),       e: DATA_MAX }),
+  '90d':  ()=>({ s: addDays(DATA_MAX,-89),       e: DATA_MAX }),
+  '6m':   ()=>({ s: addMonths(DATA_MAX,-6),      e: DATA_MAX }),
+  'ytd':  ()=>({ s: '2026-01-01',                e: DATA_MAX }),
+  '2025': ()=>({ s: '2025-01-01',                e: '2025-12-31' }),
+  'all':  ()=>({ s: DATA_MIN,                    e: DATA_MAX }),
+};
+const PRESET_LABELS = {'7d':'7 Days','30d':'30 Days','90d':'90 Days','6m':'6 Months','ytd':'2026 YTD','2025':'Full 2025','all':'All Time'};
+
+let activePreset = '7d';
+
+function applyPreset(key){
+  activePreset = key;
+  const {s,e} = PRESETS[key]();
+  document.getElementById('dt-start').value = s;
+  document.getElementById('dt-end').value   = e;
+  document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));
+  const btn = document.getElementById('p-'+key);
+  if(btn) btn.classList.add('active');
+  document.getElementById('top-badge').textContent = PRESET_LABELS[key];
+  updateAll();
+}
+
+function onDateChange(){
+  // clear active preset — user is doing custom range
+  activePreset = null;
+  document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('top-badge').textContent = 'Custom';
+  updateAll();
+}
+
+function getDateRange(){
+  return {
+    s: document.getElementById('dt-start').value,
+    e: document.getElementById('dt-end').value
+  };
+}
+
+// A week is included if its window overlaps with [s, e]
+function filtered(){
+  const {s,e} = getDateRange();
+  if(!s || !e) return RAW;
+  return RAW.filter(r=> r.ws <= e && r.we >= s);
+}
+
+// ── KPIs ──────────────────────────────────────────────────────────────────────
+function fmt(n,dp=0){ return n==null?'—':n.toLocaleString(undefined,{minimumFractionDigits:dp,maximumFractionDigits:dp}); }
+function fmtP(n,dp=1){ return n==null?'—':n.toFixed(dp)+'%'; }
+
+function renderKPIs(rows){
+  const tV=rows.reduce((s,r)=>s+r.visits,0);
+  const tNV=rows.reduce((s,r)=>s+r.new_vis,0);
+  const tE=rows.reduce((s,r)=>s+r.email,0);
+  const tS=rows.reduce((s,r)=>s+r.sms,0);
+  const aLGR=tV>0?(tE/tV*100):0;
+  const aMC=rows.reduce((s,r)=>s+(r.modal_cov||0),0)/(rows.length||1);
+  const kpis=[
+    {l:'Total Visitors',  v:fmt(tV),    s:'all channels',              c:''},
+    {l:'New Visitors',    v:fmt(tNV),   s:fmtP(tV>0?tNV/tV*100:0)+' of total', c:'teal'},
+    {l:'Modal Coverage',  v:fmtP(aMC),  s:'avg modal views / visitors', c:'purple'},
+    {l:'Email Leads',     v:fmt(tE),    s:'Subscribed to Email',        c:'green'},
+    {l:'SMS Leads',       v:fmt(tS),    s:'Subscribed to SMS',          c:'orange'},
+    {l:'Leadgen Rate',    v:fmtP(aLGR), s:'Email / Visitors',           c:'pink'},
+  ];
+  document.getElementById('kpi-strip').innerHTML=kpis.map(k=>`
+    <div class="kpi ${k.c}"><div class="kpi-label">${k.l}</div>
+    <div class="kpi-value">${k.v}</div><div class="kpi-sub">${k.s}</div></div>`).join('');
+  document.getElementById('week-count').textContent = rows.length + ' week' + (rows.length!==1?'s':'');
+}
+
+// ── charts ─────────────────────────────────────────────────────────────────────
+const charts={};
+function mk(id,cfg){ if(charts[id])charts[id].destroy(); charts[id]=new Chart(document.getElementById(id),cfg); }
+const BASE={
+  responsive:true,maintainAspectRatio:true,
+  interaction:{mode:'index',intersect:false},
+  plugins:{legend:{labels:{font:{size:11},boxWidth:12}}},
+  scales:{
+    x:{ticks:{font:{size:9},maxRotation:50,autoSkip:true,maxTicksLimit:24},grid:{display:false}},
+    y:{ticks:{font:{size:10}},grid:{color:'#f1f5f9'}}
+  }
+};
+function opts(o={}){ return JSON.parse(JSON.stringify({...BASE,...o})); }
+
+function buildAll(rows){
+  const lbl=rows.map(r=>r.label);
+
+  mk('c-traffic',{type:'bar',data:{labels:lbl,datasets:[
+    {label:'Returning',data:rows.map(r=>r.visits-r.new_vis),backgroundColor:'rgba(59,130,246,.55)',stack:'v'},
+    {label:'New',      data:rows.map(r=>r.new_vis),         backgroundColor:'rgba(34,197,94,.75)', stack:'v'},
+  ]},options:(()=>{const o=opts();o.scales.y.stacked=true;return o;})()});
+
+  mk('c-modal',{type:'line',data:{labels:lbl,datasets:[
+    {label:'Modal Coverage %',data:rows.map(r=>r.modal_cov),borderColor:'#8B5CF6',backgroundColor:'rgba(139,92,246,.1)',borderWidth:2,tension:.3,fill:true,pointRadius:rows.length<20?3:1.5},
+    {label:'90% target',      data:rows.map(()=>90),         borderColor:'#ef4444',borderDash:[5,5],borderWidth:1.5,pointRadius:0,fill:false},
+  ]},options:(()=>{const o=opts();o.scales.y.ticks.callback=v=>v+'%';o.scales.y.min=0;return o;})()});
+
+  mk('c-pctnew',{type:'line',data:{labels:lbl,datasets:[
+    {label:'% New Visitors',data:rows.map(r=>r.pct_new),borderColor:'#0EA5E9',backgroundColor:'rgba(14,165,233,.1)',borderWidth:2,tension:.3,fill:true,pointRadius:rows.length<20?3:1.5},
+  ]},options:(()=>{const o=opts();o.scales.y.ticks.callback=v=>v+'%';return o;})()});
+
+  mk('c-leads',{type:'bar',data:{labels:lbl,datasets:[
+    {label:'Email Leads',data:rows.map(r=>r.email),backgroundColor:'rgba(34,197,94,.8)',  stack:'l'},
+    {label:'SMS Leads',  data:rows.map(r=>r.sms),  backgroundColor:'rgba(249,115,22,.8)', stack:'l'},
+  ]},options:(()=>{const o=opts();o.scales.y.stacked=true;return o;})()});
+
+  mk('c-lgr',{type:'line',data:{labels:lbl,datasets:[
+    {label:'Leadgen Rate %',data:rows.map(r=>r.leadgen_rate),borderColor:'#EC4899',backgroundColor:'rgba(236,72,153,.1)',borderWidth:2,tension:.3,fill:true,pointRadius:rows.length<20?3:1.5},
+  ]},options:(()=>{const o=opts();o.scales.y.ticks.callback=v=>v+'%';return o;})()});
+
+  mk('c-sms',{type:'line',data:{labels:lbl,datasets:[
+    {label:'SMS Completion %',data:rows.map(r=>r.sms_completion),borderColor:'#F97316',backgroundColor:'rgba(249,115,22,.1)',borderWidth:2,tension:.3,fill:true,pointRadius:rows.length<20?3:1.5},
+    {label:'40% benchmark',   data:rows.map(()=>40),              borderColor:'#94a3b8',borderDash:[5,5],borderWidth:1.5,pointRadius:0,fill:false},
+  ]},options:(()=>{const o=opts();o.scales.y.ticks.callback=v=>v+'%';return o;})()});
+
+  mk('c-dual',{type:'line',data:{labels:lbl,datasets:[
+    {label:'Dual Lead Rate %',           data:rows.map(r=>r.dual_rate),    borderColor:'#8B5CF6',backgroundColor:'rgba(139,92,246,.12)',borderWidth:2.5,tension:.3,fill:true,pointRadius:rows.length<20?3:1.5},
+    {label:'Leadgen Rate % (Email only)',data:rows.map(r=>r.leadgen_rate),borderColor:'#22C55E',backgroundColor:'transparent',borderWidth:1.5,tension:.3,fill:false,pointRadius:rows.length<20?3:1.5,borderDash:[4,3]},
+  ]},options:(()=>{const o=opts();o.scales.y.ticks.callback=v=>v.toFixed(1)+'%';return o;})()});
+}
+
+function updateAll(){ const r=filtered(); renderKPIs(r); buildAll(r); }
+
+// ── init ───────────────────────────────────────────────────────────────────────
+// Set date input bounds
+document.getElementById('dt-start').min = DATA_MIN;
+document.getElementById('dt-start').max = DATA_MAX;
+document.getElementById('dt-end').min   = DATA_MIN;
+document.getElementById('dt-end').max   = DATA_MAX;
+
+// Boot with last 7 days preset
+applyPreset('7d');
+</script>
+</body>
+</html>
