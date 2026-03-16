@@ -244,7 +244,12 @@ function getDataset(){
 }
 
 // ── KPIs ──────────────────────────────────────────────────────────────────────
-function fmt(n,dp=0){return n==null?'—':n.toLocaleString(undefined,{minimumFractionDigits:dp,maximumFractionDigits:dp});}
+function fmt(n,dp=0){
+  if(n==null) return '—';
+  if(Math.abs(n)>=1e6) return (n/1e6).toFixed(1).replace(/\.0$/,'')+'M';
+  if(Math.abs(n)>=1e3) return (n/1e3).toFixed(1).replace(/\.0$/,'')+'k';
+  return n.toLocaleString(undefined,{minimumFractionDigits:dp,maximumFractionDigits:dp});
+}
 function fmtP(n,dp=1){return n==null?'—':n.toFixed(dp)+'%';}
 function renderKPIs(rows){
   const tV=rows.reduce((s,r)=>s+r.visits,0);
@@ -387,7 +392,16 @@ function buildAll(rows, grain){
     ];
     if(showMA) ds.push(maDS(`${win}-pt MA`,vals,win));
     mk('c-sms',{type:'line',data:{labels:lbl,datasets:ds},
-      options:(()=>{const o=opts();o.scales.y.ticks.callback=v=>v+'%';return o;})()});
+      options:(()=>{
+        const o=opts();
+        o.scales.y.ticks.callback=v=>v+'%';
+        const validVals=vals.filter(v=>v!=null&&!isNaN(v));
+        if(validVals.length){
+          o.scales.y.min=Math.floor(Math.min(...validVals,40)-10);
+          o.scales.y.max=Math.ceil(Math.max(...validVals,40)+10);
+        }
+        return o;
+      })()});
   }
 
   // ── Dual vs leadgen ────────────────────────────────────────────────────────
