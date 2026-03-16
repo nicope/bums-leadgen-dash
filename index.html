@@ -8,53 +8,53 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',Arial,sans-serif;background:#F0F4FA;color:#1e293b}
-.topbar{background:linear-gradient(135deg,#1e3a5f 0%,#1d4ed8 100%);padding:18px 36px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 12px rgba(0,0,0,.3)}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1127;color:#e2e8f0}
+.topbar{background:#111827;padding:18px 36px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #FF2070;box-shadow:0 2px 16px rgba(0,0,0,.5)}
 .topbar h1{color:#fff;font-size:22px;font-weight:700}
-.topbar .sub{color:#bfdbfe;font-size:13px;margin-top:4px}
-.badge{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;margin-left:8px}
-.control-bar{background:#1e3a5f;padding:10px 36px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;border-bottom:2px solid #2563EB}
+.topbar .sub{color:rgba(255,255,255,.45);font-size:13px;margin-top:4px}
+.badge{background:rgba(255,32,112,.18);color:#FF6EA8;border:1px solid rgba(255,32,112,.4);padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;margin-left:8px}
+.control-bar{background:#111827;padding:10px 36px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,255,.08)}
 .ctrl-group{display:flex;align-items:center;gap:7px}
-.ctrl-label{color:#94a3b8;font-size:12px;font-weight:600;white-space:nowrap}
-.ctrl-divider{width:1px;height:24px;background:#334155;margin:0 4px}
-.preset-btn,.group-btn{padding:5px 13px;border-radius:20px;border:1.5px solid #475569;background:transparent;color:#94a3b8;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap}
-.preset-btn.active,.group-btn.active{background:#2563EB;border-color:#2563EB;color:#fff}
-.preset-btn:hover:not(.active),.group-btn:hover:not(.active){background:#334155;color:#e2e8f0}
-.group-btn.auto.active{background:#7C3AED;border-color:#7C3AED}
-.group-tag{display:inline-flex;align-items:center;gap:5px;background:rgba(124,58,237,.25);border:1px solid rgba(124,58,237,.5);color:#c4b5fd;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap}
+.ctrl-label{color:rgba(255,255,255,.4);font-size:12px;font-weight:600;white-space:nowrap}
+.ctrl-divider{width:1px;height:24px;background:rgba(255,255,255,.1);margin:0 4px}
+.preset-btn,.group-btn{padding:5px 13px;border-radius:20px;border:1.5px solid rgba(255,255,255,.15);background:transparent;color:rgba(255,255,255,.45);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap}
+.preset-btn.active,.group-btn.active{background:#FF2070;border-color:#FF2070;color:#fff}
+.preset-btn:hover:not(.active),.group-btn:hover:not(.active){background:rgba(255,255,255,.08);color:#e2e8f0}
+.group-btn.auto.active{background:#7B3FD4;border-color:#7B3FD4}
+.group-tag{display:inline-flex;align-items:center;gap:5px;background:rgba(123,63,212,.25);border:1px solid rgba(123,63,212,.5);color:#c4b5fd;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap}
 .ma-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none}
 .ma-toggle input[type=checkbox]{display:none}
-.ma-switch{width:36px;height:20px;background:#334155;border-radius:10px;position:relative;transition:background .2s;flex-shrink:0}
-.ma-switch::after{content:'';position:absolute;left:3px;top:3px;width:14px;height:14px;background:#64748b;border-radius:50%;transition:all .2s}
+.ma-switch{width:36px;height:20px;background:rgba(255,255,255,.12);border-radius:10px;position:relative;transition:background .2s;flex-shrink:0}
+.ma-switch::after{content:'';position:absolute;left:3px;top:3px;width:14px;height:14px;background:rgba(255,255,255,.35);border-radius:50%;transition:all .2s}
 .ma-toggle input:checked + .ma-switch{background:#f59e0b}
 .ma-toggle input:checked + .ma-switch::after{left:19px;background:#fff}
-.ma-label{color:#94a3b8;font-size:12px;font-weight:600;white-space:nowrap;transition:color .2s}
+.ma-label{color:rgba(255,255,255,.4);font-size:12px;font-weight:600;white-space:nowrap;transition:color .2s}
 .ma-toggle input:checked ~ .ma-label{color:#fcd34d}
 .ma-window-badge{background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.35);color:#fcd34d;font-size:11px;font-weight:700;padding:2px 8px;border-radius:12px;white-space:nowrap;opacity:0;transition:opacity .2s}
 .ma-window-badge.visible{opacity:1}
-input[type=date]{background:#0f2340;border:1.5px solid #475569;border-radius:8px;color:#e2e8f0;font-size:12px;font-family:'Segoe UI',Arial,sans-serif;padding:5px 10px;outline:none;cursor:pointer;transition:border-color .15s}
-input[type=date]:focus{border-color:#2563EB}
+input[type=date]{background:#1a2240;border:1.5px solid rgba(255,255,255,.18);border-radius:8px;color:#e2e8f0;font-size:12px;font-family:'Segoe UI',Arial,sans-serif;padding:5px 10px;outline:none;cursor:pointer;transition:border-color .15s}
+input[type=date]:focus{border-color:#FF2070}
 input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.7);cursor:pointer}
-.date-sep{color:#475569;font-size:13px;font-weight:600}
+.date-sep{color:rgba(255,255,255,.25);font-size:13px;font-weight:600}
 .yr-dividers{display:flex;gap:6px;margin-left:auto;align-items:center}
 .dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:4px}
-.week-counter{background:rgba(37,99,235,.25);border:1px solid rgba(37,99,235,.5);color:#93c5fd;font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;white-space:nowrap}
+.week-counter{background:rgba(255,32,112,.15);border:1px solid rgba(255,32,112,.35);color:#FF6EA8;font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;white-space:nowrap}
 .kpi-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;padding:16px 36px 8px}
-.kpi{background:#fff;border-radius:10px;padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.08);border-top:3px solid #2563EB}
-.kpi.green{border-top-color:#22C55E}.kpi.purple{border-top-color:#8B5CF6}
-.kpi.orange{border-top-color:#F97316}.kpi.teal{border-top-color:#0EA5E9}.kpi.pink{border-top-color:#EC4899}
-.kpi-label{font-size:11px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
-.kpi-value{font-size:24px;font-weight:800;color:#1e293b;margin-top:4px}
-.kpi-sub{font-size:11px;color:#94a3b8;margin-top:2px}
+.kpi{background:#161d35;border-radius:10px;padding:14px 16px;box-shadow:0 2px 8px rgba(0,0,0,.3);border-top:3px solid #FF2070}
+.kpi.green{border-top-color:#22D45A}.kpi.purple{border-top-color:#9B5CF6}
+.kpi.orange{border-top-color:#F97316}.kpi.teal{border-top-color:#0EA5E9}.kpi.pink{border-top-color:#FF2070}
+.kpi-label{font-size:11px;color:rgba(255,255,255,.4);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.kpi-value{font-size:24px;font-weight:800;color:#ffffff;margin-top:4px}
+.kpi-sub{font-size:11px;color:rgba(255,255,255,.35);margin-top:2px}
 .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:8px 36px 20px}
-.chart-card{background:#fff;border-radius:12px;padding:18px 20px 14px;box-shadow:0 1px 6px rgba(0,0,0,.08)}
+.chart-card{background:#161d35;border-radius:12px;padding:18px 20px 14px;box-shadow:0 2px 8px rgba(0,0,0,.3)}
 .chart-card.wide{grid-column:1 / -1}
-.chart-title{font-size:14px;font-weight:700;color:#1e293b;margin-bottom:3px}
-.chart-sub{font-size:11px;color:#94a3b8;margin-bottom:12px}
-.note{font-size:10px;color:#f97316;font-weight:600;margin-left:6px}
+.chart-title{font-size:12px;font-weight:700;color:#FF2070;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px}
+.chart-sub{font-size:11px;color:rgba(255,255,255,.35);margin-bottom:12px}
+.note{font-size:10px;color:#FF6EA8;font-weight:600;margin-left:6px}
 canvas{max-height:220px}
 canvas.tall{max-height:200px}
-footer{text-align:center;padding:12px;color:#94a3b8;font-size:11px;border-top:1px solid #e2e8f0;margin-top:4px}
+footer{text-align:center;padding:12px;color:rgba(255,255,255,.25);font-size:11px;border-top:1px solid rgba(255,255,255,.08);margin-top:4px}
 </style>
 </head>
 <body>
@@ -290,12 +290,12 @@ const BASE={
   responsive:true, maintainAspectRatio:true,
   interaction:{mode:'index',intersect:false},
   plugins:{
-    legend:{labels:{font:{size:11},boxWidth:12}},
+    legend:{labels:{font:{size:11},boxWidth:12,color:'rgba(255,255,255,.6)'}},
     datalabels:{display:false}   // global default OFF
   },
   scales:{
-    x:{ticks:{font:{size:9},maxRotation:50,autoSkip:true,maxTicksLimit:28},grid:{display:false}},
-    y:{ticks:{font:{size:10}},grid:{color:'#f1f5f9'}}
+    x:{ticks:{font:{size:9},maxRotation:50,autoSkip:true,maxTicksLimit:28,color:'rgba(255,255,255,.35)'},grid:{display:false}},
+    y:{ticks:{font:{size:10},color:'rgba(255,255,255,.35)'},grid:{color:'rgba(255,255,255,.06)'}}
   }
 };
 function opts(o={}){return JSON.parse(JSON.stringify({...BASE,...o}));}
@@ -335,10 +335,10 @@ function buildAll(rows, grain){
 
     mk('c-traffic',{type:'bar',data:{labels:lbl,datasets:[
       {label:'Returning', data:retData,
-       backgroundColor:'rgba(59,130,246,.6)', stack:'v',
+       backgroundColor:'rgba(123,63,212,.75)', stack:'v',
        datalabels:{...dlCfg}},
       {label:'New',       data:newData,
-       backgroundColor:'rgba(34,197,94,.75)', stack:'v',
+       backgroundColor:'rgba(255,32,112,.85)', stack:'v',
        datalabels:{...dlCfg}},
     ]}, options:trafficOpts});
   }
@@ -347,8 +347,8 @@ function buildAll(rows, grain){
   {
     const vals=rows.map(r=>r.modal_cov);
     const ds=[
-      {label:'Modal Coverage %',data:vals,borderColor:'#8B5CF6',backgroundColor:'rgba(139,92,246,.1)',borderWidth:2,tension,fill:true,pointRadius:pr,order:1,datalabels:{display:false}},
-      {label:'90% target',      data:rows.map(()=>90),borderColor:'#ef4444',borderDash:[5,5],borderWidth:1.5,pointRadius:0,fill:false,order:2,datalabels:{display:false}},
+      {label:'Modal Coverage %',data:vals,borderColor:'#C06EFF',backgroundColor:'rgba(192,110,255,.1)',borderWidth:2,tension,fill:true,pointRadius:pr,order:1,datalabels:{display:false}},
+      {label:'90% target',      data:rows.map(()=>90),borderColor:'rgba(255,255,255,.3)',borderDash:[5,5],borderWidth:1.5,pointRadius:0,fill:false,order:2,datalabels:{display:false}},
     ];
     if(showMA) ds.push(maDS(`${win}-pt MA`,vals,win));
     mk('c-modal',{type:'line',data:{labels:lbl,datasets:ds},
@@ -359,7 +359,7 @@ function buildAll(rows, grain){
   {
     const vals=rows.map(r=>r.pct_new);
     const ds=[
-      {label:'% New Visitors',data:vals,borderColor:'#0EA5E9',backgroundColor:'rgba(14,165,233,.1)',borderWidth:2,tension,fill:true,pointRadius:pr,order:1,datalabels:{display:false}},
+      {label:'% New Visitors',data:vals,borderColor:'#FF2070',backgroundColor:'rgba(255,32,112,.1)',borderWidth:2,tension,fill:true,pointRadius:pr,order:1,datalabels:{display:false}},
     ];
     if(showMA) ds.push(maDS(`${win}-pt MA`,vals,win));
     mk('c-pctnew',{type:'line',data:{labels:lbl,datasets:ds},
@@ -368,15 +368,15 @@ function buildAll(rows, grain){
 
   // ── Leads stacked bar ──────────────────────────────────────────────────────
   mk('c-leads',{type:'bar',data:{labels:lbl,datasets:[
-    {label:'Email Leads',data:rows.map(r=>r.email),backgroundColor:'rgba(34,197,94,.8)', stack:'l',datalabels:{display:false}},
-    {label:'SMS Leads',  data:rows.map(r=>r.sms),  backgroundColor:'rgba(249,115,22,.8)',stack:'l',datalabels:{display:false}},
+    {label:'Email Leads',data:rows.map(r=>r.email),backgroundColor:'rgba(255,32,112,.85)', stack:'l',datalabels:{display:false}},
+    {label:'SMS Leads',  data:rows.map(r=>r.sms),  backgroundColor:'rgba(123,63,212,.85)',stack:'l',datalabels:{display:false}},
   ]},options:(()=>{const o=opts();o.scales.y.stacked=true;return o;})()});
 
   // ── Leadgen rate ───────────────────────────────────────────────────────────
   {
     const vals=rows.map(r=>r.leadgen_rate);
     const ds=[
-      {label:'Leadgen Rate %',data:vals,borderColor:'#EC4899',backgroundColor:'rgba(236,72,153,.1)',borderWidth:2,tension,fill:true,pointRadius:pr,order:1,datalabels:{display:false}},
+      {label:'Leadgen Rate %',data:vals,borderColor:'#FF2070',backgroundColor:'rgba(255,32,112,.1)',borderWidth:2,tension,fill:true,pointRadius:pr,order:1,datalabels:{display:false}},
     ];
     if(showMA) ds.push(maDS(`${win}-pt MA`,vals,win));
     mk('c-lgr',{type:'line',data:{labels:lbl,datasets:ds},
@@ -387,8 +387,8 @@ function buildAll(rows, grain){
   {
     const vals=rows.map(r=>r.sms_completion);
     const ds=[
-      {label:'SMS Completion %',data:vals,borderColor:'#F97316',backgroundColor:'rgba(249,115,22,.1)',borderWidth:2,tension,fill:true,pointRadius:pr,order:1,datalabels:{display:false}},
-      {label:'40% benchmark',   data:rows.map(()=>40),borderColor:'#94a3b8',borderDash:[5,5],borderWidth:1.5,pointRadius:0,fill:false,order:2,datalabels:{display:false}},
+      {label:'SMS Completion %',data:vals,borderColor:'#F97316',backgroundColor:'rgba(249,115,22,.12)',borderWidth:2,tension,fill:true,pointRadius:pr,order:1,datalabels:{display:false}},
+      {label:'40% benchmark',   data:rows.map(()=>40),borderColor:'rgba(255,255,255,.25)',borderDash:[5,5],borderWidth:1.5,pointRadius:0,fill:false,order:2,datalabels:{display:false}},
     ];
     if(showMA) ds.push(maDS(`${win}-pt MA`,vals,win));
     mk('c-sms',{type:'line',data:{labels:lbl,datasets:ds},
@@ -409,8 +409,8 @@ function buildAll(rows, grain){
     const dualVals=rows.map(r=>r.dual_rate);
     const lgrVals =rows.map(r=>r.leadgen_rate);
     const ds=[
-      {label:'Dual Lead Rate %',            data:dualVals,borderColor:'#8B5CF6',backgroundColor:'rgba(139,92,246,.12)',borderWidth:2.5,tension,fill:true, pointRadius:pr,order:1,datalabels:{display:false}},
-      {label:'Leadgen Rate % (Email only)', data:lgrVals, borderColor:'#22C55E',backgroundColor:'transparent',        borderWidth:1.5,tension,fill:false,pointRadius:pr,order:2,borderDash:[4,3],datalabels:{display:false}},
+      {label:'Dual Lead Rate %',            data:dualVals,borderColor:'#C06EFF',backgroundColor:'rgba(192,110,255,.12)',borderWidth:2.5,tension,fill:true, pointRadius:pr,order:1,datalabels:{display:false}},
+      {label:'Leadgen Rate % (Email only)', data:lgrVals, borderColor:'#FF2070',backgroundColor:'transparent',         borderWidth:1.5,tension,fill:false,pointRadius:pr,order:2,borderDash:[4,3],datalabels:{display:false}},
     ];
     if(showMA){
       ds.push({...maDS(`Dual ${win}-pt MA`,   dualVals,win), borderColor:'rgba(245,158,11,.9)'});
