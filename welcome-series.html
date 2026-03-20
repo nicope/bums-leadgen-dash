@@ -126,35 +126,45 @@ canvas{width:100%!important}
 .channel-stat-val{font-size:13px;font-weight:700;color:#fff}
 
 footer{text-align:center;padding:20px;color:rgba(255,255,255,.2);font-size:11px;border-top:1px solid rgba(255,255,255,.06);margin-top:40px}
+
+/* ── App shell ── */
+.site-header{background:#111827;padding:0 36px;display:flex;align-items:center;justify-content:space-between;height:52px;border-bottom:1px solid rgba(255,255,255,.08);position:sticky;top:0;z-index:200;box-shadow:0 2px 16px rgba(0,0,0,.5)}
+.site-brand{display:flex;align-items:center;gap:0}
+.brand-dot{color:#FF2070;font-size:9px;margin-right:8px;line-height:1}
+.brand-name{color:#fff;font-weight:700;font-size:14px;letter-spacing:-.2px}
+.brand-sep{color:rgba(255,255,255,.2);margin:0 10px;font-size:14px}
+.brand-section{color:rgba(255,255,255,.4);font-size:13px;font-weight:500}
+.site-nav{display:flex;gap:6px}
+.site-tab{padding:6px 16px;border-radius:6px;border:1.5px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);font-size:13px;font-weight:600;text-decoration:none;transition:all .15s;white-space:nowrap;cursor:pointer}
+.site-tab:hover:not(.active){border-color:rgba(255,255,255,.3);color:#e2e8f0;background:rgba(255,255,255,.05)}
+.site-tab.active{background:#FF2070;border-color:#FF2070;color:#fff}
+/* ── Page sub-header ── */
+.page-header{background:#111827;padding:14px 36px 0;border-bottom:2px solid #FF2070}
+.page-header h1{color:#fff;font-size:20px;font-weight:800}
+.page-header .sub{color:rgba(255,255,255,.4);font-size:12px;margin-top:3px;padding-bottom:12px}
 </style>
 </head>
 <body>
 
-<!-- ── Header ── -->
-<div class="report-header">
-  <div>
-    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
-      <span style="color:rgba(255,255,255,.35);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Bums &amp; Roses</span>
-      <span style="color:rgba(255,255,255,.2);font-size:12px">/</span>
-      <a href="index.html" style="color:rgba(255,255,255,.4);font-size:12px;font-weight:600;text-decoration:none;text-transform:uppercase;letter-spacing:.5px;transition:color .15s" onmouseover="this.style.color='#e2e8f0'" onmouseout="this.style.color='rgba(255,255,255,.4)'">Leadgen</a>
-      <span style="color:rgba(255,255,255,.2);font-size:12px">/</span>
-      <a href="welcome-series.html" style="color:#FF6EA8;font-size:12px;font-weight:700;text-decoration:none;text-transform:uppercase;letter-spacing:.5px">Welcome Series</a>
-    </div>
-    <h1>Welcome Series — Performance Report
-      <span class="badge-pill">Email</span>
-      <span class="badge-pill sms">SMS</span>
-    </h1>
-    <div class="meta">Last 12 months · Placed Order conversion window · Generated Mar 2026</div>
+<!-- ── App shell header ── -->
+<div class="site-header">
+  <div class="site-brand">
+    <span class="brand-dot">●</span>
+    <span class="brand-name">Bums &amp; Roses</span>
+    <span class="brand-sep">/</span>
+    <span class="brand-section">Analytics</span>
   </div>
-  <div style="display:flex;align-items:center;gap:10px">
-    <a href="index.html" style="display:flex;align-items:center;gap:7px;background:rgba(255,32,112,.15);border:1px solid rgba(255,32,112,.35);color:#FF6EA8;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;transition:all .15s" onmouseover="this.style.background='rgba(255,32,112,.28)'" onmouseout="this.style.background='rgba(255,32,112,.15)'">
-      &#8592; Leadgen Dashboard
-    </a>
-    <div style="text-align:right">
-      <div style="font-size:28px;font-weight:900;color:#fff">$580,447</div>
-      <div style="font-size:12px;color:rgba(255,255,255,.4)">Combined welcome series revenue (LTM)</div>
-    </div>
-  </div>
+  <nav class="site-nav">
+    <a href="index.html" class="site-tab">&#128202; Leadgen</a>
+    <a href="welcome-series.html" class="site-tab active">&#128140; Welcome Series</a>
+  </nav>
+</div>
+<div class="page-header">
+  <h1>Welcome Series — Performance Report
+    <span class="badge-pill">Email</span>
+    <span class="badge-pill sms">SMS</span>
+  </h1>
+  <div class="sub">Last 12 months · Placed Order conversion window · Generated Mar 2026 &nbsp;·&nbsp; <strong style="color:#fff">$580,447</strong> combined revenue</div>
 </div>
 
 <div class="page">

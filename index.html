@@ -9,9 +9,24 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1127;color:#e2e8f0}
-.topbar{background:#111827;padding:18px 36px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #FF2070;box-shadow:0 2px 16px rgba(0,0,0,.5)}
-.topbar h1{color:#fff;font-size:22px;font-weight:700}
-.topbar .sub{color:rgba(255,255,255,.45);font-size:13px;margin-top:4px}
+
+/* ── App shell ── */
+.site-header{background:#111827;padding:0 36px;display:flex;align-items:center;justify-content:space-between;height:52px;border-bottom:1px solid rgba(255,255,255,.08);position:sticky;top:0;z-index:200;box-shadow:0 2px 16px rgba(0,0,0,.5)}
+.site-brand{display:flex;align-items:center;gap:0}
+.brand-dot{color:#FF2070;font-size:9px;margin-right:8px;line-height:1}
+.brand-name{color:#fff;font-weight:700;font-size:14px;letter-spacing:-.2px}
+.brand-sep{color:rgba(255,255,255,.2);margin:0 10px;font-size:14px}
+.brand-section{color:rgba(255,255,255,.4);font-size:13px;font-weight:500}
+.site-nav{display:flex;gap:6px}
+.site-tab{padding:6px 16px;border-radius:6px;border:1.5px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);font-size:13px;font-weight:600;text-decoration:none;transition:all .15s;white-space:nowrap;cursor:pointer}
+.site-tab:hover:not(.active){border-color:rgba(255,255,255,.3);color:#e2e8f0;background:rgba(255,255,255,.05)}
+.site-tab.active{background:#FF2070;border-color:#FF2070;color:#fff}
+
+/* ── Page sub-header ── */
+.page-header{background:#111827;padding:14px 36px 0;border-bottom:2px solid #FF2070}
+.page-header h1{color:#fff;font-size:20px;font-weight:800}
+.page-header .sub{color:rgba(255,255,255,.4);font-size:12px;margin-top:3px;padding-bottom:12px}
+
 .badge{background:rgba(255,32,112,.18);color:#FF6EA8;border:1px solid rgba(255,32,112,.4);padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;margin-left:8px}
 .control-bar{background:#111827;padding:10px 36px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,255,.08)}
 .ctrl-group{display:flex;align-items:center;gap:7px}
@@ -59,24 +74,23 @@ footer{text-align:center;padding:12px;color:rgba(255,255,255,.25);font-size:11px
 </head>
 <body>
 
-<div class="topbar">
-  <div>
-    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
-      <span style="color:rgba(255,255,255,.35);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Bums &amp; Roses</span>
-      <span style="color:rgba(255,255,255,.2);font-size:12px">/</span>
-      <a href="index.html" style="color:#FF6EA8;font-size:12px;font-weight:700;text-decoration:none;text-transform:uppercase;letter-spacing:.5px">Leadgen</a>
-      <span style="color:rgba(255,255,255,.2);font-size:12px">/</span>
-      <a href="welcome-series.html" style="color:rgba(255,255,255,.4);font-size:12px;font-weight:600;text-decoration:none;text-transform:uppercase;letter-spacing:.5px;transition:color .15s" onmouseover="this.style.color='#e2e8f0'" onmouseout="this.style.color='rgba(255,255,255,.4)'">Welcome Series</a>
-    </div>
-    <h1>&#128202; Leadgen Weekly Dashboard</h1>
-    <div class="sub">Northbeam Traffic + Klaviyo Lead Generation &middot; Mar 2024 &ndash; Mar 2026</div>
+<div class="site-header">
+  <div class="site-brand">
+    <span class="brand-dot">●</span>
+    <span class="brand-name">Bums &amp; Roses</span>
+    <span class="brand-sep">/</span>
+    <span class="brand-section">Analytics</span>
   </div>
-  <div style="display:flex;align-items:center;gap:8px">
-    <a href="welcome-series.html" style="display:flex;align-items:center;gap:7px;background:rgba(155,92,246,.2);border:1px solid rgba(155,92,246,.45);color:#c4b5fd;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;transition:all .15s" onmouseover="this.style.background='rgba(155,92,246,.35)'" onmouseout="this.style.background='rgba(155,92,246,.2)'">
-      &#128140; Welcome Series
-    </a>
-    <span class="badge" id="top-badge">90 Days</span>
-    <span class="badge" id="top-grain">Weekly</span>
+  <nav class="site-nav">
+    <a href="index.html" class="site-tab active">&#128202; Leadgen</a>
+    <a href="welcome-series.html" class="site-tab">&#128140; Welcome Series</a>
+  </nav>
+</div>
+<div class="page-header">
+  <h1>&#128202; Leadgen Weekly Dashboard</h1>
+  <div class="sub">Northbeam Traffic + Klaviyo Lead Generation &middot; Mar 2024 &ndash; Mar 2026
+    <span id="top-badge" class="badge">90 Days</span>
+    <span id="top-grain" class="badge">Weekly</span>
   </div>
 </div>
 
