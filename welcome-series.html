@@ -18,19 +18,19 @@ a{color:inherit;text-decoration:none}
 .report-header .brand{font-size:13px;color:rgba(255,255,255,.4);font-weight:600;letter-spacing:.5px;text-transform:uppercase}
 .report-header h1{font-size:20px;font-weight:800;color:#fff;margin-top:2px}
 .report-header .meta{font-size:12px;color:rgba(255,255,255,.35);margin-top:3px}
-.badge-pill{background:rgba(255,32,112,.18);color:#FF6EA8;border:1px solid rgba(255,32,112,.4);padding:3px 11px;border-radius:20px;font-size:11px;font-weight:700;margin-left:8px}
-.badge-pill.sms{background:rgba(123,63,212,.2);color:#c4b5fd;border-color:rgba(123,63,212,.4)}
+.badge-pill{background:rgba(255,255,255,.08);color:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.15);padding:3px 11px;border-radius:20px;font-size:11px;font-weight:700;margin-left:8px}
+.badge-pill.sms{background:rgba(255,255,255,.06);color:rgba(255,255,255,.45);border-color:rgba(255,255,255,.12)}
 
 /* ── Nav ── */
 .tab-nav{display:flex;gap:4px;padding:20px 0 0;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:28px}
 .tab-btn{padding:9px 20px;border:none;background:transparent;color:rgba(255,255,255,.4);font-size:13px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;font-family:'Segoe UI',Arial,sans-serif}
 .tab-btn:hover{color:#e2e8f0}
-.tab-btn.active{color:#FF2070;border-bottom-color:#FF2070}
+.tab-btn.active{color:#e2e8f0;border-bottom-color:rgba(255,255,255,.6)}
 .tab-panel{display:none}
 .tab-panel.active{display:block}
 
 /* ── Section headers ── */
-.section-title{font-size:11px;font-weight:700;color:#FF2070;text-transform:uppercase;letter-spacing:.8px;margin-bottom:16px}
+.section-title{font-size:11px;font-weight:700;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.8px;margin-bottom:16px}
 .section-sub{font-size:12px;color:rgba(255,255,255,.35);margin-top:-12px;margin-bottom:16px}
 
 /* ── KPI strip ── */
@@ -39,13 +39,13 @@ a{color:inherit;text-decoration:none}
 .kpi-strip.cols-5{grid-template-columns:repeat(5,1fr)}
 .kpi-strip.cols-6{grid-template-columns:repeat(6,1fr)}
 .kpi-strip.cols-3{grid-template-columns:repeat(3,1fr)}
-.kpi{background:#161d35;border-radius:10px;padding:14px 16px;border-top:3px solid #FF2070}
-.kpi.sms{border-top-color:#9B5CF6}
+.kpi{background:#161d35;border-radius:10px;padding:14px 16px;border-top:3px solid rgba(255,255,255,.14)}
+.kpi.sms{border-top-color:rgba(123,63,212,.5)}
 .kpi.green{border-top-color:#22D45A}
 .kpi.orange{border-top-color:#F97316}
 .kpi.amber{border-top-color:#F59E0B}
 .kpi.teal{border-top-color:#0EA5E9}
-.kpi.grey{border-top-color:rgba(255,255,255,.2)}
+.kpi.grey{border-top-color:rgba(255,255,255,.14)}
 .kpi-label{font-size:10px;color:rgba(255,255,255,.4);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
 .kpi-value{font-size:22px;font-weight:800;color:#fff;margin-top:3px}
 .kpi-sub{font-size:11px;color:rgba(255,255,255,.3);margin-top:2px}
@@ -60,8 +60,8 @@ a{color:inherit;text-decoration:none}
 
 /* ── Cards ── */
 .card{background:#161d35;border-radius:12px;padding:20px 22px}
-.card-title{font-size:11px;font-weight:700;color:#FF2070;text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px}
-.card-title.sms{color:#9B5CF6}
+.card-title{font-size:11px;font-weight:700;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px}
+.card-title.sms{color:rgba(255,255,255,.45)}
 .card-sub{font-size:11px;color:rgba(255,255,255,.3);margin-bottom:14px}
 canvas{width:100%!important}
 
@@ -89,15 +89,15 @@ canvas{width:100%!important}
 
 /* ── Bar meter ── */
 .bar-meter{height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;margin-top:4px}
-.bar-fill{height:100%;border-radius:3px;background:#FF2070}
-.bar-fill.sms{background:#9B5CF6}
+.bar-fill{height:100%;border-radius:3px;background:rgba(255,255,255,.35)}
+.bar-fill.sms{background:rgba(123,63,212,.55)}
 .bar-fill.green{background:#22D45A}
 .bar-fill.orange{background:#F97316}
 .bar-fill.amber{background:#F59E0B}
 
 /* ── Insight cards ── */
-.insight{background:#161d35;border-radius:10px;padding:16px 18px;border-left:3px solid #FF2070;margin-bottom:12px}
-.insight.sms{border-left-color:#9B5CF6}
+.insight{background:#161d35;border-radius:10px;padding:16px 18px;border-left:3px solid rgba(255,255,255,.18);margin-bottom:12px}
+.insight.sms{border-left-color:rgba(123,63,212,.5)}
 .insight.warn{border-left-color:#F59E0B}
 .insight.positive{border-left-color:#22D45A}
 .insight-title{font-size:12px;font-weight:700;color:#fff;margin-bottom:4px}
@@ -117,8 +117,8 @@ canvas{width:100%!important}
 
 /* ── channel split overview ── */
 .channel-split{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
-.channel-card{background:#161d35;border-radius:12px;padding:20px 22px;border-top:3px solid #FF2070}
-.channel-card.sms{border-top-color:#9B5CF6}
+.channel-card{background:#161d35;border-radius:12px;padding:20px 22px;border-top:3px solid rgba(255,255,255,.14)}
+.channel-card.sms{border-top-color:rgba(123,63,212,.45)}
 .channel-card h2{font-size:13px;font-weight:700;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
 .channel-stat{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)}
 .channel-stat:last-child{border-bottom:none}
@@ -126,6 +126,18 @@ canvas{width:100%!important}
 .channel-stat-val{font-size:13px;font-weight:700;color:#fff}
 
 footer{text-align:center;padding:20px;color:rgba(255,255,255,.2);font-size:11px;border-top:1px solid rgba(255,255,255,.06);margin-top:40px}
+
+/* ── Control bar (matches leadgen dash) ── */
+.control-bar{background:#111827;padding:10px 36px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,255,.08)}
+.ctrl-group{display:flex;align-items:center;gap:7px}
+.ctrl-label{color:rgba(255,255,255,.35);font-size:12px;font-weight:600;white-space:nowrap}
+.ctrl-divider{width:1px;height:24px;background:rgba(255,255,255,.1);margin:0 4px}
+.preset-btn,.group-btn{padding:5px 13px;border-radius:20px;border:1.5px solid rgba(255,255,255,.13);background:transparent;color:rgba(255,255,255,.4);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;font-family:'Segoe UI',Arial,sans-serif}
+.preset-btn.active,.group-btn.active{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.35);color:#fff}
+.preset-btn:hover:not(.active),.group-btn:hover:not(.active){background:rgba(255,255,255,.07);color:#e2e8f0}
+.group-btn.active.ch-email{background:rgba(255,32,112,.2);border-color:rgba(255,32,112,.4);color:#ffaac8}
+.group-btn.active.ch-sms{background:rgba(123,63,212,.25);border-color:rgba(123,63,212,.5);color:#c4b5fd}
+.period-badge{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);color:rgba(255,255,255,.5);font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;white-space:nowrap;margin-left:auto}
 
 /* ── App shell ── */
 .site-header{background:#111827;padding:0 36px;display:flex;align-items:center;justify-content:space-between;height:52px;border-bottom:1px solid rgba(255,255,255,.08);position:sticky;top:0;z-index:200;box-shadow:0 2px 16px rgba(0,0,0,.5)}
@@ -139,7 +151,7 @@ footer{text-align:center;padding:20px;color:rgba(255,255,255,.2);font-size:11px;
 .site-tab:hover:not(.active){border-color:rgba(255,255,255,.3);color:#e2e8f0;background:rgba(255,255,255,.05)}
 .site-tab.active{background:#FF2070;border-color:#FF2070;color:#fff}
 /* ── Page sub-header ── */
-.page-header{background:#111827;padding:14px 36px 0;border-bottom:2px solid #FF2070}
+.page-header{background:#111827;padding:14px 36px 0;border-bottom:1px solid rgba(255,255,255,.1)}
 .page-header h1{color:#fff;font-size:20px;font-weight:800}
 .page-header .sub{color:rgba(255,255,255,.4);font-size:12px;margin-top:3px;padding-bottom:12px}
 </style>
@@ -165,6 +177,24 @@ footer{text-align:center;padding:20px;color:rgba(255,255,255,.2);font-size:11px;
     <span class="badge-pill sms">SMS</span>
   </h1>
   <div class="sub">Last 12 months · Placed Order conversion window · Generated Mar 2026 &nbsp;·&nbsp; <strong style="color:#fff">$580,447</strong> combined revenue</div>
+</div>
+
+<div class="control-bar">
+  <div class="ctrl-group">
+    <span class="ctrl-label">Period:</span>
+    <button class="preset-btn active" id="ws-ltm"  onclick="wsPreset('ltm',this)">Last 12 Months</button>
+    <button class="preset-btn"        id="ws-6m"   onclick="wsPreset('6m',this)">6 Months</button>
+    <button class="preset-btn"        id="ws-2025" onclick="wsPreset('2025',this)">Full 2025</button>
+    <button class="preset-btn"        id="ws-2024" onclick="wsPreset('2024',this)">Full 2024</button>
+  </div>
+  <div class="ctrl-divider"></div>
+  <div class="ctrl-group">
+    <span class="ctrl-label">Channel:</span>
+    <button class="group-btn active" id="ch-all"   onclick="wsChannel('all',this)">All</button>
+    <button class="group-btn ch-email" id="ch-email" onclick="wsChannel('email',this)">📧 Email</button>
+    <button class="group-btn ch-sms"   id="ch-sms"   onclick="wsChannel('sms',this)">💬 SMS</button>
+  </div>
+  <span class="period-badge" id="ws-period-label">Apr 2025 – Mar 2026</span>
 </div>
 
 <div class="page">
@@ -737,6 +767,27 @@ footer{text-align:center;padding:20px;color:rgba(255,255,255,.2);font-size:11px;
 
 <script>
 // ── Tab switching ──────────────────────────────────────────────────────────
+// ── Period / channel filter bar ──────────────────────────────────────────────
+const WS_PERIODS = {
+  ltm:  'Apr 2025 – Mar 2026',
+  '6m': 'Oct 2025 – Mar 2026',
+  '2025':'Jan 2025 – Dec 2025',
+  '2024':'Jan 2024 – Dec 2024'
+};
+function wsPreset(preset, btn){
+  document.querySelectorAll('#ws-ltm,#ws-6m,#ws-2025,#ws-2024').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('ws-period-label').textContent = WS_PERIODS[preset] || preset;
+}
+function wsChannel(ch, btn){
+  document.querySelectorAll('#ch-all,#ch-email,#ch-sms').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const tabMap = {email:'email', sms:'sms', all:'overview'};
+  const targetTab = tabMap[ch];
+  const tabBtn = [...document.querySelectorAll('.tab-btn')].find(b=>b.getAttribute('onclick') && b.getAttribute('onclick').includes("'"+targetTab+"'"));
+  if(tabBtn) switchTab(targetTab, tabBtn);
+}
+
 function switchTab(id, btn){
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
