@@ -193,6 +193,8 @@ input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.65);cursor:po
   <div class="ctrl-divider"></div>
   <div class="ctrl-group">
     <span class="ctrl-label">Quick:</span>
+    <button class="preset-btn"        id="ws-7d"   onclick="wsPreset('7d',this)">7 Days</button>
+    <button class="preset-btn"        id="ws-30d"  onclick="wsPreset('30d',this)">30 Days</button>
     <button class="preset-btn active" id="ws-ltm"  onclick="wsPreset('ltm',this)">Last 12M</button>
     <button class="preset-btn"        id="ws-6m"   onclick="wsPreset('6m',this)">6 Months</button>
     <button class="preset-btn"        id="ws-2025" onclick="wsPreset('2025',this)">Full 2025</button>
@@ -779,34 +781,36 @@ input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.65);cursor:po
 <script>
 // ── Tab switching ──────────────────────────────────────────────────────────
 // ── Period / channel filter bar ──────────────────────────────────────────────
+function toISO(d){ return d.toISOString().slice(0,10); }
+function relDates(days){ const e=new Date(),s=new Date(); s.setDate(s.getDate()-days); return {label:'Last '+days+' Days',start:toISO(s),end:toISO(e)}; }
 const WS_PERIODS = {
-  ltm:  {label:'Apr 2025 – Mar 2026', start:'2025-04-01', end:'2026-03-31'},
-  '6m': {label:'Oct 2025 – Mar 2026', start:'2025-10-01', end:'2026-03-31'},
-  '2025':{label:'Jan 2025 – Dec 2025', start:'2025-01-01', end:'2025-12-31'},
-  '2024':{label:'Jan 2024 – Dec 2024', start:'2024-01-01', end:'2024-12-31'}
+  '7d': ()=>relDates(7),
+  '30d':()=>relDates(30),
+  ltm:  ()=>({label:'Last 12 Months', start:'2025-04-01', end:'2026-03-31'}),
+  '6m': ()=>({label:'6 Months',       start:'2025-10-01', end:'2026-03-31'}),
+  '2025':()=>({label:'Full 2025',     start:'2025-01-01', end:'2025-12-31'}),
+  '2024':()=>({label:'Full 2024',     start:'2024-01-01', end:'2024-12-31'})
 };
+const ALL_PRESETS = '#ws-7d,#ws-30d,#ws-ltm,#ws-6m,#ws-2025,#ws-2024';
 function wsPreset(preset, btn){
-  document.querySelectorAll('#ws-ltm,#ws-6m,#ws-2025,#ws-2024').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll(ALL_PRESETS).forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  const p = WS_PERIODS[preset];
-  if(p){
-    document.getElementById('ws-period-label').textContent = p.label;
-    document.getElementById('ws-dt-start').value = p.start;
-    document.getElementById('ws-dt-end').value   = p.end;
-  }
+  const p = WS_PERIODS[preset]();
+  document.getElementById('ws-period-label').textContent = p.label;
+  document.getElementById('ws-dt-start').value = p.start;
+  document.getElementById('ws-dt-end').value   = p.end;
 }
 function wsDateChange(){
   const s = document.getElementById('ws-dt-start').value;
   const e = document.getElementById('ws-dt-end').value;
   if(!s || !e) return;
-  // Clear preset active states when user picks custom range
-  const matched = Object.entries(WS_PERIODS).find(([,p])=>p.start===s && p.end===e);
-  document.querySelectorAll('#ws-ltm,#ws-6m,#ws-2025,#ws-2024').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll(ALL_PRESETS).forEach(b=>b.classList.remove('active'));
+  const matched = Object.entries(WS_PERIODS).find(([,fn])=>{ const p=fn(); return p.start===s&&p.end===e; });
   if(matched){
-    document.getElementById('ws-'+matched[0]).classList.add('active');
-    document.getElementById('ws-period-label').textContent = matched[1].label;
+    const el=document.getElementById('ws-'+matched[0]); if(el) el.classList.add('active');
+    document.getElementById('ws-period-label').textContent = matched[1]().label;
   } else {
-    const fmt = d=>new Date(d+'T00:00:00').toLocaleDateString('en-GB',{month:'short',year:'numeric'});
+    const fmt=d=>new Date(d+'T00:00:00').toLocaleDateString('en-GB',{month:'short',year:'numeric'});
     document.getElementById('ws-period-label').textContent = fmt(s)+' – '+fmt(e);
   }
 }
@@ -818,12 +822,8 @@ function wsChannel(ch, btn){
   const tabBtn = [...document.querySelectorAll('.tab-btn')].find(b=>b.getAttribute('onclick')&&b.getAttribute('onclick').includes("'"+targetTab+"'"));
   if(tabBtn) switchTab(targetTab, tabBtn);
 }
-// Initialise date fields to default LTM preset
-(function(){
-  const p = WS_PERIODS['ltm'];
-  document.getElementById('ws-dt-start').value = p.start;
-  document.getElementById('ws-dt-end').value   = p.end;
-})();
+// Initialise to LTM
+(function(){ const p=WS_PERIODS['ltm'](); document.getElementById('ws-dt-start').value=p.start; document.getElementById('ws-dt-end').value=p.end; })();
 
 function switchTab(id, btn){
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
