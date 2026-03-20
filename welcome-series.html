@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome Series — Performance Report · Bums & Roses</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1127;color:#e2e8f0;line-height:1.5}
+a{color:inherit;text-decoration:none}
+
+/* ── Layout ── */
+.page{max-width:1280px;margin:0 auto;padding:32px 36px 60px}
+
+/* ── Header ── */
+.report-header{background:#111827;border-bottom:2px solid #FF2070;padding:20px 36px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.report-header .brand{font-size:13px;color:rgba(255,255,255,.4);font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+.report-header h1{font-size:20px;font-weight:800;color:#fff;margin-top:2px}
+.report-header .meta{font-size:12px;color:rgba(255,255,255,.35);margin-top:3px}
+.badge-pill{background:rgba(255,32,112,.18);color:#FF6EA8;border:1px solid rgba(255,32,112,.4);padding:3px 11px;border-radius:20px;font-size:11px;font-weight:700;margin-left:8px}
+.badge-pill.sms{background:rgba(123,63,212,.2);color:#c4b5fd;border-color:rgba(123,63,212,.4)}
+
+/* ── Nav ── */
+.tab-nav{display:flex;gap:4px;padding:20px 0 0;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:28px}
+.tab-btn{padding:9px 20px;border:none;background:transparent;color:rgba(255,255,255,.4);font-size:13px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;font-family:'Segoe UI',Arial,sans-serif}
+.tab-btn:hover{color:#e2e8f0}
+.tab-btn.active{color:#FF2070;border-bottom-color:#FF2070}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* ── Section headers ── */
+.section-title{font-size:11px;font-weight:700;color:#FF2070;text-transform:uppercase;letter-spacing:.8px;margin-bottom:16px}
+.section-sub{font-size:12px;color:rgba(255,255,255,.35);margin-top:-12px;margin-bottom:16px}
+
+/* ── KPI strip ── */
+.kpi-strip{display:grid;gap:12px;margin-bottom:24px}
+.kpi-strip.cols-4{grid-template-columns:repeat(4,1fr)}
+.kpi-strip.cols-5{grid-template-columns:repeat(5,1fr)}
+.kpi-strip.cols-6{grid-template-columns:repeat(6,1fr)}
+.kpi-strip.cols-3{grid-template-columns:repeat(3,1fr)}
+.kpi{background:#161d35;border-radius:10px;padding:14px 16px;border-top:3px solid #FF2070}
+.kpi.sms{border-top-color:#9B5CF6}
+.kpi.green{border-top-color:#22D45A}
+.kpi.orange{border-top-color:#F97316}
+.kpi.amber{border-top-color:#F59E0B}
+.kpi.teal{border-top-color:#0EA5E9}
+.kpi.grey{border-top-color:rgba(255,255,255,.2)}
+.kpi-label{font-size:10px;color:rgba(255,255,255,.4);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.kpi-value{font-size:22px;font-weight:800;color:#fff;margin-top:3px}
+.kpi-sub{font-size:11px;color:rgba(255,255,255,.3);margin-top:2px}
+.kpi-delta{font-size:11px;font-weight:700;margin-top:2px}
+.kpi-delta.up{color:#22D45A}.kpi-delta.down{color:#F97316}.kpi-delta.warn{color:#F59E0B}
+
+/* ── Grid ── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px}
+.grid-5-3{display:grid;grid-template-columns:5fr 3fr;gap:16px;margin-bottom:20px}
+.grid-3-5{display:grid;grid-template-columns:3fr 5fr;gap:16px;margin-bottom:20px}
+
+/* ── Cards ── */
+.card{background:#161d35;border-radius:12px;padding:20px 22px}
+.card-title{font-size:11px;font-weight:700;color:#FF2070;text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px}
+.card-title.sms{color:#9B5CF6}
+.card-sub{font-size:11px;color:rgba(255,255,255,.3);margin-bottom:14px}
+canvas{width:100%!important}
+
+/* ── Tables ── */
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{color:rgba(255,255,255,.4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:8px 10px;text-align:left;border-bottom:1px solid rgba(255,255,255,.08)}
+.tbl td{padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.05);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:rgba(255,255,255,.03)}
+.tbl .right{text-align:right}
+.tbl .center{text-align:center}
+.tbl .mono{font-family:'SF Mono','Fira Code',monospace;font-size:11px}
+.msg-name{font-weight:700;color:#fff;display:block;font-size:12px}
+.msg-step{font-size:10px;color:rgba(255,255,255,.3);margin-top:1px}
+
+/* ── Pills / badges ── */
+.pill{display:inline-block;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700}
+.pill.green{background:rgba(34,212,90,.15);color:#22D45A}
+.pill.orange{background:rgba(249,115,22,.15);color:#F97316}
+.pill.amber{background:rgba(245,158,11,.15);color:#F59E0B}
+.pill.red{background:rgba(239,68,68,.15);color:#EF4444}
+.pill.blue{background:rgba(14,165,233,.15);color:#0EA5E9}
+.pill.purple{background:rgba(155,92,246,.15);color:#9B5CF6}
+.pill.grey{background:rgba(255,255,255,.08);color:rgba(255,255,255,.5)}
+
+/* ── Bar meter ── */
+.bar-meter{height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;margin-top:4px}
+.bar-fill{height:100%;border-radius:3px;background:#FF2070}
+.bar-fill.sms{background:#9B5CF6}
+.bar-fill.green{background:#22D45A}
+.bar-fill.orange{background:#F97316}
+.bar-fill.amber{background:#F59E0B}
+
+/* ── Insight cards ── */
+.insight{background:#161d35;border-radius:10px;padding:16px 18px;border-left:3px solid #FF2070;margin-bottom:12px}
+.insight.sms{border-left-color:#9B5CF6}
+.insight.warn{border-left-color:#F59E0B}
+.insight.positive{border-left-color:#22D45A}
+.insight-title{font-size:12px;font-weight:700;color:#fff;margin-bottom:4px}
+.insight-body{font-size:12px;color:rgba(255,255,255,.5);line-height:1.6}
+.insight-body strong{color:rgba(255,255,255,.85)}
+
+/* ── Funnel ── */
+.funnel-row{display:flex;align-items:center;margin-bottom:10px;gap:12px}
+.funnel-label{font-size:11px;color:rgba(255,255,255,.5);width:110px;flex-shrink:0;text-align:right}
+.funnel-bar-wrap{flex:1;position:relative}
+.funnel-bar{height:30px;border-radius:4px;display:flex;align-items:center;padding:0 10px;font-size:11px;font-weight:700;color:#fff;transition:width .3s}
+.funnel-val{font-size:11px;color:rgba(255,255,255,.5);margin-left:8px;flex-shrink:0;width:80px}
+.funnel-arrow{font-size:10px;color:rgba(255,255,255,.25);text-align:center;margin:2px 0 2px 122px}
+
+/* ── divider ── */
+.divider{height:1px;background:rgba(255,255,255,.06);margin:24px 0}
+
+/* ── channel split overview ── */
+.channel-split{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.channel-card{background:#161d35;border-radius:12px;padding:20px 22px;border-top:3px solid #FF2070}
+.channel-card.sms{border-top-color:#9B5CF6}
+.channel-card h2{font-size:13px;font-weight:700;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
+.channel-stat{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.channel-stat:last-child{border-bottom:none}
+.channel-stat-label{font-size:12px;color:rgba(255,255,255,.4)}
+.channel-stat-val{font-size:13px;font-weight:700;color:#fff}
+
+footer{text-align:center;padding:20px;color:rgba(255,255,255,.2);font-size:11px;border-top:1px solid rgba(255,255,255,.06);margin-top:40px}
+</style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<div class="report-header">
+  <div>
+    <div class="brand">Bums &amp; Roses · Klaviyo</div>
+    <h1>Welcome Series — Performance Report
+      <span class="badge-pill">Email</span>
+      <span class="badge-pill sms">SMS</span>
+    </h1>
+    <div class="meta">Last 12 months · Placed Order conversion window · Generated Mar 2026</div>
+  </div>
+  <div style="text-align:right">
+    <div style="font-size:28px;font-weight:900;color:#fff">$580,447</div>
+    <div style="font-size:12px;color:rgba(255,255,255,.4)">Combined welcome series revenue (LTM)</div>
+  </div>
+</div>
+
+<div class="page">
+
+<!-- ── Tab nav ── -->
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('overview',this)">Overview</button>
+  <button class="tab-btn" onclick="switchTab('email',this)">📧 Email Flow</button>
+  <button class="tab-btn" onclick="switchTab('sms',this)">💬 SMS Flow</button>
+  <button class="tab-btn" onclick="switchTab('insights',this)">💡 Insights &amp; Actions</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     TAB: OVERVIEW
+═══════════════════════════════════════════════════════════ -->
+<div class="tab-panel active" id="tab-overview">
+
+  <div class="section-title">Combined Welcome Series · LTM Summary</div>
+
+  <div class="kpi-strip cols-4" style="margin-bottom:24px">
+    <div class="kpi"><div class="kpi-label">Total Revenue</div><div class="kpi-value">$580k</div><div class="kpi-sub">Both channels combined</div></div>
+    <div class="kpi green"><div class="kpi-label">Total Conversions</div><div class="kpi-value">5,686</div><div class="kpi-sub">3,029 email · 2,657 SMS</div></div>
+    <div class="kpi teal"><div class="kpi-label">Total Recipients</div><div class="kpi-value">1.22M</div><div class="kpi-sub">657k email · 559k SMS</div></div>
+    <div class="kpi amber"><div class="kpi-label">Blended RPR</div><div class="kpi-value">$0.48</div><div class="kpi-sub">Email $0.47 · SMS $0.49</div></div>
+  </div>
+
+  <!-- Channel split -->
+  <div class="channel-split">
+    <div class="channel-card">
+      <h2>📧 Email — Welcome [Email] Q22025</h2>
+      <div class="channel-stat"><span class="channel-stat-label">Recipients (LTM)</span><span class="channel-stat-val">656,787</span></div>
+      <div class="channel-stat"><span class="channel-stat-label">Revenue</span><span class="channel-stat-val">$310,544 <span style="font-size:11px;color:rgba(255,255,255,.3)">(53%)</span></span></div>
+      <div class="channel-stat"><span class="channel-stat-label">Conversions</span><span class="channel-stat-val">3,029</span></div>
+      <div class="channel-stat"><span class="channel-stat-label">Avg Open Rate</span><span class="channel-stat-val">47.1%</span></div>
+      <div class="channel-stat"><span class="channel-stat-label">Avg Click Rate</span><span class="channel-stat-val">0.94%</span></div>
+      <div class="channel-stat"><span class="channel-stat-label">Avg CVR</span><span class="channel-stat-val">0.46%</span></div>
+      <div class="channel-stat"><span class="channel-stat-label">RPR</span><span class="channel-stat-val">$0.48</span></div>
+      <div class="channel-stat"><span class="channel-stat-label">Avg Order Value</span><span class="channel-stat-val">$102.52</span></div>
+      <div class="channel-stat"><span class="channel-stat-label">Flow Status</span><span class="channel-stat-val"><span class="pill green">Live</span></span></div>
+    </div>
+    <div class="channel-card sms">
+      <h2>💬 SMS — Welcome Series 15OFF</h2>
+      <div class="channel-stat"><span class="channel-stat-label">Recipients (LTM)</span><span class="channel-stat-val">558,932</span></div>
+      <div class="channel-stat"><span class="channel-stat-label">Revenue</span><span class="channel-stat-val">$269,903 <span style="font-size:11px;color:rgba(255,255,255,.3)">(47%)</span></span></div>
+      <div class="channel-stat"><span class="channel-stat-label">Conversions</span><span class="channel-stat-val">2,657</span></div>
+      <div class="channel-stat"><span class="channel-stat-label">Open Rate</span><span class="channel-stat-val">N/A <span style="font-size:10px;color:rgba(255,255,255,.3)">(SMS)</span></span></div>
+      <div class="channel-stat"><span class="channel-stat-label">Avg Click Rate</span><span class="channel-stat-val">3.63%</span></div>
+      <div class="channel-stat"><span class="channel-stat-label">Avg CVR</span><span class="channel-stat-val">0.47%</span></div>
+      <div class="channel-stat"><span class="channel-stat-label">RPR</span><span class="channel-stat-val">$0.49</span></div>
+      <div class="channel-stat"><span class="channel-stat-label">Avg Order Value</span><span class="channel-stat-val">$101.58</span></div>
+      <div class="channel-stat"><span class="channel-stat-label">Flow Status</span><span class="channel-stat-val"><span class="pill green">Live</span></span></div>
+    </div>
+  </div>
+
+  <!-- Charts row -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Revenue by Channel</div>
+      <div class="card-sub">Email vs SMS contribution to welcome series LTM revenue</div>
+      <canvas id="c-rev-split" style="max-height:220px"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title">Revenue per Recipient by Sequence Step</div>
+      <div class="card-sub">Email 1 & SMS 1 drive virtually all conversion value</div>
+      <canvas id="c-rpr-compare" style="max-height:220px"></canvas>
+    </div>
+  </div>
+
+  <!-- Combined funnel -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">Combined Welcome Funnel (LTM)</div>
+    <div class="card-sub">From lead capture → first message → click → purchase</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;padding-top:8px">
+      <div>
+        <div style="font-size:11px;font-weight:700;color:#FF2070;margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px">Email Funnel</div>
+        <div class="funnel-row"><div class="funnel-label">Leads (Email)</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="width:100%;background:#FF2070">656,787</div></div></div>
+        <div class="funnel-arrow">↓ 99.0% delivery</div>
+        <div class="funnel-row"><div class="funnel-label">Delivered</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="width:99%;background:rgba(255,32,112,.7)">650,448</div></div></div>
+        <div class="funnel-arrow">↓ 47.1% open rate</div>
+        <div class="funnel-row"><div class="funnel-label">Opened</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="width:47%;background:rgba(255,32,112,.55)">306,410</div></div></div>
+        <div class="funnel-arrow">↓ 2.0% click-to-open</div>
+        <div class="funnel-row"><div class="funnel-label">Clicked</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="width:9%;background:rgba(255,32,112,.4)">6,142</div></div></div>
+        <div class="funnel-arrow">↓ 49.3% click-to-purchase</div>
+        <div class="funnel-row"><div class="funnel-label">Purchased</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="width:5%;background:rgba(255,32,112,.3)">3,029</div></div></div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:700;color:#9B5CF6;margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px">SMS Funnel</div>
+        <div class="funnel-row"><div class="funnel-label">Leads (SMS)</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="width:100%;background:#9B5CF6">558,932</div></div></div>
+        <div class="funnel-arrow">↓ 99.3% delivery</div>
+        <div class="funnel-row"><div class="funnel-label">Delivered</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="width:99%;background:rgba(155,92,246,.7)">555,036</div></div></div>
+        <div class="funnel-arrow">↓ 3.63% avg click rate</div>
+        <div class="funnel-row"><div class="funnel-label">Clicked</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="width:15%;background:rgba(155,92,246,.5)">20,148</div></div></div>
+        <div class="funnel-arrow">↓ 13.2% click-to-purchase</div>
+        <div class="funnel-row"><div class="funnel-label">Purchased</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="width:5%;background:rgba(155,92,246,.3)">2,657</div></div></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /tab-overview -->
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     TAB: EMAIL FLOW
+═══════════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-email">
+
+  <div class="section-title">Email Flow · Welcome [Email] Q22025 · XJuc5D</div>
+  <div class="section-sub">Launched June 4, 2025 · Trigger: Added to List · 6-email sequence · Personalized Email 1 by age segment</div>
+
+  <div class="kpi-strip cols-5">
+    <div class="kpi"><div class="kpi-label">Recipients</div><div class="kpi-value">657k</div><div class="kpi-sub">LTM</div></div>
+    <div class="kpi"><div class="kpi-label">Open Rate</div><div class="kpi-value">47.1%</div><div class="kpi-sub">Avg across all messages</div></div>
+    <div class="kpi"><div class="kpi-label">Click Rate</div><div class="kpi-value">0.94%</div><div class="kpi-sub">Avg across all messages</div></div>
+    <div class="kpi green"><div class="kpi-label">Revenue</div><div class="kpi-value">$310k</div><div class="kpi-sub">$102.52 AOV</div></div>
+    <div class="kpi amber"><div class="kpi-label">RPR</div><div class="kpi-value">$0.48</div><div class="kpi-sub">Revenue per recipient</div></div>
+  </div>
+
+  <!-- Segment performance -->
+  <div class="grid-2" style="margin-bottom:20px">
+    <div class="card">
+      <div class="card-title">Email 1 — Performance by Age Segment</div>
+      <div class="card-sub">Personalized first email drives 88% of total email flow revenue</div>
+      <canvas id="c-email-seg-rpr" style="max-height:200px"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title">Email 1 — Open Rate &amp; CVR by Segment</div>
+      <div class="card-sub">Baby/Toddler open 61% vs Kids at 50% — significant gap</div>
+      <canvas id="c-email-seg-rates" style="max-height:200px"></canvas>
+    </div>
+  </div>
+
+  <!-- Segment table -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-title">Email 1 — Segment Breakdown</div>
+    <div class="card-sub">Each segment receives a unique hero image personalized for their child's age group</div>
+    <table class="tbl">
+      <thead><tr>
+        <th>Segment</th>
+        <th class="right">Recipients</th>
+        <th class="right">Open Rate</th>
+        <th class="right">CTR</th>
+        <th class="right">CVR</th>
+        <th class="right">Revenue</th>
+        <th class="right">RPR</th>
+        <th class="right">AOV</th>
+        <th class="right">Unsub Rate</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="msg-name">👶 Baby</span><span class="msg-step">Gif + Static variants</span></td>
+          <td class="right mono">63,873</td>
+          <td class="right"><span class="pill green">60.9%</span></td>
+          <td class="right mono">2.65%</td>
+          <td class="right mono">2.07%</td>
+          <td class="right mono">$130,323</td>
+          <td class="right"><span style="color:#22D45A;font-weight:700">$2.08</span></td>
+          <td class="right mono">$99.26</td>
+          <td class="right mono">2.11%</td>
+        </tr>
+        <tr>
+          <td><span class="msg-name">🧒 Toddler</span><span class="msg-step">Gif + Static variants</span></td>
+          <td class="right mono">31,057</td>
+          <td class="right"><span class="pill green">61.5%</span></td>
+          <td class="right mono">2.71%</td>
+          <td class="right"><span style="color:#22D45A;font-weight:700">2.39%</span></td>
+          <td class="right mono">$73,320</td>
+          <td class="right"><span style="color:#22D45A;font-weight:700">$2.41</span></td>
+          <td class="right mono">$99.64</td>
+          <td class="right mono">2.38%</td>
+        </tr>
+        <tr>
+          <td><span class="msg-name">👦 Kid</span><span class="msg-step">Gif + Static variants</span></td>
+          <td class="right mono">25,065</td>
+          <td class="right"><span class="pill amber">50.5%</span></td>
+          <td class="right mono">2.01%</td>
+          <td class="right mono">1.68%</td>
+          <td class="right mono">$46,162</td>
+          <td class="right mono">$1.88</td>
+          <td class="right mono">$110.73</td>
+          <td class="right mono">2.09%</td>
+        </tr>
+        <tr>
+          <td><span class="msg-name">❓ Age Not Set</span><span class="msg-step">Generic summer hero gif</span></td>
+          <td class="right mono">9,561</td>
+          <td class="right"><span class="pill amber">54.7%</span></td>
+          <td class="right"><span style="color:#22D45A;font-weight:700">3.37%</span></td>
+          <td class="right mono">2.31%</td>
+          <td class="right mono">$23,017</td>
+          <td class="right"><span style="color:#22D45A;font-weight:700">$2.47</span></td>
+          <td class="right mono">$105.10</td>
+          <td class="right mono">1.77%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Sequence performance -->
+  <div class="grid-2" style="margin-bottom:20px">
+    <div class="card">
+      <div class="card-title">Revenue Drop-off by Sequence Step</div>
+      <div class="card-sub">Email 1 = 88% of flow revenue. Follow-ups have limited impact.</div>
+      <canvas id="c-email-seq-rev" style="max-height:200px"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title">Open Rate &amp; Click Rate by Step</div>
+      <div class="card-sub">Email 3 open rate spike (54%) is anomalous — subject line effect</div>
+      <canvas id="c-email-seq-rates" style="max-height:200px"></canvas>
+    </div>
+  </div>
+
+  <!-- Sequence table -->
+  <div class="card">
+    <div class="card-title">Full Email Sequence — Message-by-Message</div>
+    <div class="card-sub">CBAB = Cash Back After Buy nurture series · Flash Sale = limited-time offer</div>
+    <table class="tbl">
+      <thead><tr>
+        <th>Step</th>
+        <th>Type</th>
+        <th class="right">Recipients</th>
+        <th class="right">Open Rate</th>
+        <th class="right">CTR</th>
+        <th class="right">CVR</th>
+        <th class="right">Revenue</th>
+        <th class="right">RPR</th>
+        <th class="right">Unsub</th>
+      </tr></thead>
+      <tbody>
+        <tr style="background:rgba(255,32,112,.05)">
+          <td><span class="msg-name">Email 1</span><span class="msg-step">Personalized by age segment</span></td>
+          <td><span class="pill green">Hero</span></td>
+          <td class="right mono">129,556</td>
+          <td class="right"><span class="pill green">59.3%</span></td>
+          <td class="right"><span style="color:#22D45A;font-weight:700">2.65%</span></td>
+          <td class="right"><span style="color:#22D45A;font-weight:700">2.07%</span></td>
+          <td class="right"><span style="color:#22D45A;font-weight:700">$272,823</span></td>
+          <td class="right"><span style="color:#22D45A;font-weight:700">$2.11</span></td>
+          <td class="right mono">2.12%</td>
+        </tr>
+        <tr>
+          <td><span class="msg-name">Email 2</span><span class="msg-step">CBAB nurture — A/B</span></td>
+          <td><span class="pill grey">CBAB</span></td>
+          <td class="right mono">107,543</td>
+          <td class="right mono">41.9%</td>
+          <td class="right mono">0.29%</td>
+          <td class="right mono">0.04%</td>
+          <td class="right mono">$3,845</td>
+          <td class="right"><span style="color:#F97316">$0.04</span></td>
+          <td class="right mono">0.84%</td>
+        </tr>
+        <tr>
+          <td><span class="msg-name">Email 3</span><span class="msg-step">CBAB nurture — A/B</span></td>
+          <td><span class="pill grey">CBAB</span></td>
+          <td class="right mono">107,330</td>
+          <td class="right"><span class="pill amber">54.0%</span></td>
+          <td class="right mono">0.31%</td>
+          <td class="right mono">0.08%</td>
+          <td class="right mono">$7,916</td>
+          <td class="right"><span style="color:#F97316">$0.07</span></td>
+          <td class="right mono">0.99%</td>
+        </tr>
+        <tr>
+          <td><span class="msg-name">Email 4</span><span class="msg-step">CBAB nurture — A/B</span></td>
+          <td><span class="pill grey">CBAB</span></td>
+          <td class="right mono">107,346</td>
+          <td class="right mono">42.3%</td>
+          <td class="right mono">0.37%</td>
+          <td class="right mono">0.05%</td>
+          <td class="right mono">$5,222</td>
+          <td class="right"><span style="color:#F97316">$0.05</span></td>
+          <td class="right mono">0.77%</td>
+        </tr>
+        <tr>
+          <td><span class="msg-name">Email 5</span><span class="msg-step">Flash Sale — urgency offer</span></td>
+          <td><span class="pill blue">Flash</span></td>
+          <td class="right mono">103,617</td>
+          <td class="right mono">41.8%</td>
+          <td class="right mono">1.26%</td>
+          <td class="right mono">0.11%</td>
+          <td class="right mono">$15,355</td>
+          <td class="right mono">$0.15</td>
+          <td class="right mono">0.58%</td>
+        </tr>
+        <tr>
+          <td><span class="msg-name">Email 6</span><span class="msg-step">Flash Sale 2 — follow-up</span></td>
+          <td><span class="pill blue">Flash</span></td>
+          <td class="right mono">101,395</td>
+          <td class="right mono">41.2%</td>
+          <td class="right mono">0.51%</td>
+          <td class="right mono">0.04%</td>
+          <td class="right mono">$5,385</td>
+          <td class="right"><span style="color:#F97316">$0.05</span></td>
+          <td class="right mono">0.74%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div><!-- /tab-email -->
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     TAB: SMS FLOW
+═══════════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-sms">
+
+  <div class="section-title">SMS Flow · Welcome Series — 15OFF test · YkPWeK</div>
+  <div class="section-sub">Launched Feb 21, 2025 · Trigger: Metric (SMS opt-in) · 5-message sequence · 15% OFF discount offer</div>
+
+  <div class="kpi-strip cols-5">
+    <div class="kpi sms"><div class="kpi-label">Recipients</div><div class="kpi-value">559k</div><div class="kpi-sub">LTM</div></div>
+    <div class="kpi sms"><div class="kpi-label">Avg Click Rate</div><div class="kpi-value">3.63%</div><div class="kpi-sub">Across all 5 messages</div></div>
+    <div class="kpi green"><div class="kpi-label">Revenue</div><div class="kpi-value">$270k</div><div class="kpi-sub">$101.58 AOV</div></div>
+    <div class="kpi orange"><div class="kpi-label">SMS 1 Revenue Share</div><div class="kpi-value">76%</div><div class="kpi-sub">$204k of $270k total</div></div>
+    <div class="kpi amber"><div class="kpi-label">SMS 2 Unsub Rate</div><div class="kpi-value">4.81%</div><div class="kpi-sub class="kpi-delta warn">⚠️ Needs attention</div></div>
+  </div>
+
+  <!-- SMS Charts -->
+  <div class="grid-2" style="margin-bottom:20px">
+    <div class="card">
+      <div class="card-title sms">Click Rate by Message</div>
+      <div class="card-sub">SMS 1 CTR (7.1%) is 2.5× higher than any subsequent message</div>
+      <canvas id="c-sms-ctr" style="max-height:200px"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title sms">Revenue &amp; RPR by Message</div>
+      <div class="card-sub">Revenue cliff after SMS 1 — follow-ups combined = 24% of flow revenue</div>
+      <canvas id="c-sms-rev" style="max-height:200px"></canvas>
+    </div>
+  </div>
+
+  <!-- SMS message table -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-title sms">Message-by-Message Breakdown</div>
+    <div class="card-sub">SMS open rate is not tracked by Klaviyo — click rate is the primary engagement signal</div>
+    <table class="tbl">
+      <thead><tr>
+        <th>Step</th>
+        <th>Content</th>
+        <th class="right">Recipients</th>
+        <th class="right">Delivery</th>
+        <th class="right">Click Rate</th>
+        <th class="right">CVR</th>
+        <th class="right">Revenue</th>
+        <th class="right">RPR</th>
+        <th class="right">AOV</th>
+        <th class="right">Unsub Rate</th>
+      </tr></thead>
+      <tbody>
+        <tr style="background:rgba(155,92,246,.05)">
+          <td><span class="msg-name">SMS 1</span><span class="msg-step">Immediate — 15% OFF offer</span></td>
+          <td><span class="pill purple">15OFF</span></td>
+          <td class="right mono">125,634</td>
+          <td class="right mono">99.5%</td>
+          <td class="right"><span style="color:#22D45A;font-weight:700">7.07%</span></td>
+          <td class="right"><span style="color:#22D45A;font-weight:700">1.61%</span></td>
+          <td class="right"><span style="color:#22D45A;font-weight:700">$204,131</span></td>
+          <td class="right"><span style="color:#22D45A;font-weight:700">$1.63</span></td>
+          <td class="right mono">$100.16</td>
+          <td class="right mono">2.54%</td>
+        </tr>
+        <tr>
+          <td><span class="msg-name">SMS 2</span><span class="msg-step">Contact card save</span></td>
+          <td><span class="pill amber">Contact</span></td>
+          <td class="right mono">141,081</td>
+          <td class="right mono">98.8%</td>
+          <td class="right mono">2.08%</td>
+          <td class="right mono">0.16%</td>
+          <td class="right mono">$23,126</td>
+          <td class="right mono">$0.17</td>
+          <td class="right mono">$103.70</td>
+          <td class="right"><span class="pill red">4.81%</span></td>
+        </tr>
+        <tr>
+          <td><span class="msg-name">SMS 3</span><span class="msg-step">15% OFF reminder</span></td>
+          <td><span class="pill purple">15OFF</span></td>
+          <td class="right mono">113,046</td>
+          <td class="right mono">99.5%</td>
+          <td class="right mono">2.91%</td>
+          <td class="right mono">0.13%</td>
+          <td class="right mono">$16,027</td>
+          <td class="right mono">$0.14</td>
+          <td class="right mono">$109.03</td>
+          <td class="right mono">3.16%</td>
+        </tr>
+        <tr>
+          <td><span class="msg-name">SMS 4</span><span class="msg-step">15% OFF reminder</span></td>
+          <td><span class="pill purple">15OFF</span></td>
+          <td class="right mono">106,534</td>
+          <td class="right mono">99.4%</td>
+          <td class="right mono">2.83%</td>
+          <td class="right mono">0.15%</td>
+          <td class="right mono">$15,577</td>
+          <td class="right mono">$0.15</td>
+          <td class="right mono">$98.59</td>
+          <td class="right mono">2.30%</td>
+        </tr>
+        <tr>
+          <td><span class="msg-name">SMS 5</span><span class="msg-step">15% OFF last chance</span></td>
+          <td><span class="pill purple">15OFF</span></td>
+          <td class="right mono">71,058</td>
+          <td class="right mono">99.5%</td>
+          <td class="right mono">2.67%</td>
+          <td class="right mono">0.06%</td>
+          <td class="right mono">$4,686</td>
+          <td class="right mono">$0.07</td>
+          <td class="right mono">$111.58</td>
+          <td class="right mono">2.32%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Revenue waterfall viz -->
+  <div class="card">
+    <div class="card-title sms">Revenue Attribution Waterfall</div>
+    <div class="card-sub">Revenue contribution and running total across the SMS sequence</div>
+    <div style="padding:8px 0">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div style="font-size:11px;color:rgba(255,255,255,.4);width:60px;text-align:right">SMS 1</div>
+        <div style="flex:1;background:rgba(155,92,246,.8);height:32px;border-radius:4px;display:flex;align-items:center;padding:0 12px;font-size:12px;font-weight:700">$204,131 <span style="font-size:10px;font-weight:400;margin-left:8px;opacity:.7">76% of flow total</span></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div style="font-size:11px;color:rgba(255,255,255,.4);width:60px;text-align:right">SMS 2</div>
+        <div style="flex:1"><div style="background:rgba(155,92,246,.5);height:32px;border-radius:4px;display:flex;align-items:center;padding:0 12px;font-size:12px;font-weight:700;width:13%">$23k</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div style="font-size:11px;color:rgba(255,255,255,.4);width:60px;text-align:right">SMS 3</div>
+        <div style="flex:1"><div style="background:rgba(155,92,246,.4);height:32px;border-radius:4px;display:flex;align-items:center;padding:0 12px;font-size:12px;font-weight:700;width:10%">$16k</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div style="font-size:11px;color:rgba(255,255,255,.4);width:60px;text-align:right">SMS 4</div>
+        <div style="flex:1"><div style="background:rgba(155,92,246,.3);height:32px;border-radius:4px;display:flex;align-items:center;padding:0 12px;font-size:12px;font-weight:700;width:10%">$16k</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="font-size:11px;color:rgba(255,255,255,.4);width:60px;text-align:right">SMS 5</div>
+        <div style="flex:1"><div style="background:rgba(155,92,246,.2);height:32px;border-radius:4px;display:flex;align-items:center;padding:0 12px;font-size:12px;font-weight:700;width:3%"></div><span style="font-size:11px;color:rgba(255,255,255,.4);margin-left:4px">$4.7k</span></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /tab-sms -->
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     TAB: INSIGHTS
+═══════════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-insights">
+
+  <div class="section-title">Key Findings &amp; Optimisation Actions</div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div>
+      <div style="font-size:11px;font-weight:700;color:#FF2070;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">📧 Email Flow</div>
+
+      <div class="insight positive">
+        <div class="insight-title">✅ Age-personalized Email 1 is exceptional</div>
+        <div class="insight-body">Baby/Toddler segments achieve <strong>61% open rate</strong> and <strong>$2.40 RPR</strong> — well above industry benchmarks. The personalization strategy is working. Kids lag at 50% OR — worth testing new hero images or subject lines for the 6-10 age group.</div>
+      </div>
+
+      <div class="insight warn">
+        <div class="insight-title">⚠️ CBAB emails (2–4) are near-dead weight</div>
+        <div class="insight-body">Emails 2–4 generate <strong>$0.04–0.07 RPR</strong> vs $2.11 for Email 1 — a 97% drop. They still have <strong>42–54% open rates</strong>, meaning audience is reading but not buying. The CBAB copy/offer isn't compelling enough. Consider replacing with social proof, UGC, or a product finder quiz.</div>
+      </div>
+
+      <div class="insight warn">
+        <div class="insight-title">⚠️ Email 3 open rate anomaly (54%)</div>
+        <div class="insight-body">Email 3 has a <strong>54% open rate</strong> vs ~42% for Emails 2 and 4. This suggests the subject line is significantly better. Worth applying that subject line style to the other CBAB emails to lift overall engagement.</div>
+      </div>
+
+      <div class="insight">
+        <div class="insight-title">💡 Flash Sale emails (5–6) underperform</div>
+        <div class="insight-body">Despite urgency framing, Email 5 (Flash Sale 1) only generates <strong>$0.15 RPR</strong>. At step 5 the audience has already either converted or disengaged. Consider moving the flash sale to step 3, when audience is still warm.</div>
+      </div>
+
+      <div class="insight positive">
+        <div class="insight-title">✅ "Age not set" segment has highest CTR</div>
+        <div class="insight-body">Subscribers with no age data have <strong>3.37% CTR</strong> and <strong>$2.47 RPR</strong> — higher than any named segment. Likely a motivated discovery audience. An onboarding quiz as part of the welcome flow could capture age data and make this the best-performing segment.</div>
+      </div>
+    </div>
+
+    <div>
+      <div style="font-size:11px;font-weight:700;color:#9B5CF6;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">💬 SMS Flow</div>
+
+      <div class="insight sms positive">
+        <div class="insight-title">✅ SMS 1 is a top-performing revenue engine</div>
+        <div class="insight-body">SMS 1 generates <strong>$204k (76% of SMS flow revenue)</strong> with a <strong>7.07% CTR</strong> and <strong>1.61% CVR</strong>. A <strong>$1.63 RPR</strong> from a single text message is excellent. The 15OFF offer sent immediately after opt-in has peak buying intent.</div>
+      </div>
+
+      <div class="insight warn">
+        <div class="insight-title">⚠️ SMS 2 Contact Card has 4.81% unsub rate</div>
+        <div class="insight-body">SMS 2 generates <strong>6,709 unsubscribes</strong> — nearly 2× the rate of other messages. This is the highest churn point in the entire welcome series. The contact card format may feel like spam or add friction. Consider replacing with a value-add message or moving it later in the sequence.</div>
+      </div>
+
+      <div class="insight sms">
+        <div class="insight-title">💡 SMS 3–5 are high-volume, low-return</div>
+        <div class="insight-body">SMS 3–5 combined reach <strong>290k recipients</strong> but generate only <strong>$36k revenue</strong> ($0.12 RPR average). Meanwhile they accumulate <strong>7,630 unsubscribes</strong>. Consider reducing to 2 follow-up SMS max, or switching to a different offer type (e.g. social proof, bestseller, urgency expiry).</div>
+      </div>
+
+      <div class="insight sms positive">
+        <div class="insight-title">✅ Hidden test: 10_off_75 had 16.2% CTR</div>
+        <div class="insight-body">The small test variant offering <strong>$10 off $75</strong> (vs 15% off) showed <strong>16.2% CTR</strong> and <strong>3.02% CVR</strong> with a higher <strong>$129 AOV</strong>. Only 1,579 recipients so not conclusive — but this is worth a proper A/B test. Threshold-based offers may outperform percent discounts for SMS.</div>
+      </div>
+
+      <div class="insight warn">
+        <div class="insight-title">⚠️ Click rate decay (7% → ~3%) after SMS 1</div>
+        <div class="insight-body">Each subsequent SMS sees roughly the same CTR (~2.7–2.9%), meaning the urgency of the 15OFF offer is fully spent after message 1. Subsequent messages need a <strong>new hook</strong> — either a different offer, social proof angle, or product-specific message — to revive engagement.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Priority actions table -->
+  <div class="section-title">Priority Actions</div>
+  <div class="card">
+    <table class="tbl">
+      <thead><tr><th>#</th><th>Action</th><th>Channel</th><th>Expected Impact</th><th>Effort</th></tr></thead>
+      <tbody>
+        <tr>
+          <td style="font-weight:700;color:#FF2070">1</td>
+          <td><strong>Test $10 off $75 vs 15% OFF for SMS 1</strong><br><span style="color:rgba(255,255,255,.4);font-size:11px">Small test showed 16% vs 7% CTR. A proper A/B could double SMS revenue.</span></td>
+          <td><span class="pill purple">SMS</span></td>
+          <td><span class="pill green">High</span></td>
+          <td><span class="pill amber">Low</span></td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;color:#FF2070">2</td>
+          <td><strong>Remove or replace SMS 2 Contact Card</strong><br><span style="color:rgba(255,255,255,.4);font-size:11px">4.81% unsub is burning your list. Replace with a value/social proof message.</span></td>
+          <td><span class="pill purple">SMS</span></td>
+          <td><span class="pill green">High</span></td>
+          <td><span class="pill green">Low</span></td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;color:#9B5CF6">3</td>
+          <td><strong>Replace CBAB Emails 2–4 with higher-intent content</strong><br><span style="color:rgba(255,255,255,.4);font-size:11px">42% OR but $0.04–0.07 RPR. Use UGC, reviews, bestsellers, or a quiz instead.</span></td>
+          <td><span class="pill" style="background:rgba(255,32,112,.15);color:#FF6EA8">Email</span></td>
+          <td><span class="pill green">High</span></td>
+          <td><span class="pill orange">Medium</span></td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;color:#9B5CF6">4</td>
+          <td><strong>Move Flash Sale offer to Email 3</strong><br><span style="color:rgba(255,255,255,.4);font-size:11px">Audience is warmer at step 3 than step 5. Test moving urgency offer earlier.</span></td>
+          <td><span class="pill" style="background:rgba(255,32,112,.15);color:#FF6EA8">Email</span></td>
+          <td><span class="pill amber">Medium</span></td>
+          <td><span class="pill green">Low</span></td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;color:#9B5CF6">5</td>
+          <td><strong>Test new hero images for Kid segment</strong><br><span style="color:rgba(255,255,255,.4);font-size:11px">50% OR vs 61% for Baby/Toddler. Closing this gap could add ~$15k revenue.</span></td>
+          <td><span class="pill" style="background:rgba(255,32,112,.15);color:#FF6EA8">Email</span></td>
+          <td><span class="pill amber">Medium</span></td>
+          <td><span class="pill amber">Medium</span></td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;color:#F59E0B">6</td>
+          <td><strong>Add age-capture quiz step to welcome flow</strong><br><span style="color:rgba(255,255,255,.4);font-size:11px">"Unknown" segment has highest CTR (3.37%) — route them through a quick quiz to set age and boost personalization coverage.</span></td>
+          <td><span class="pill" style="background:rgba(255,32,112,.15);color:#FF6EA8">Email</span></td>
+          <td><span class="pill amber">Medium</span></td>
+          <td><span class="pill orange">Medium</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div><!-- /tab-insights -->
+
+</div><!-- /page -->
+
+<footer>Bums &amp; Roses · Welcome Series Performance Report · Klaviyo LTM Data · Mar 2026</footer>
+
+<script>
+// ── Tab switching ──────────────────────────────────────────────────────────
+function switchTab(id, btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── Chart defaults ─────────────────────────────────────────────────────────
+Chart.defaults.color = 'rgba(255,255,255,.45)';
+Chart.defaults.font.family = "'Segoe UI', Arial, sans-serif";
+Chart.defaults.font.size = 11;
+
+const PINK   = 'rgba(255,32,112,.85)';
+const PINK_L = 'rgba(255,32,112,.25)';
+const PURP   = 'rgba(155,92,246,.85)';
+const PURP_L = 'rgba(155,92,246,.25)';
+const GREEN  = 'rgba(34,212,90,.85)';
+const AMBER  = 'rgba(245,158,11,.85)';
+const TEAL   = 'rgba(14,165,233,.85)';
+const gridColor = 'rgba(255,255,255,.06)';
+
+function baseOpts(extra={}){
+  return {responsive:true,maintainAspectRatio:true,
+    plugins:{legend:{labels:{boxWidth:10,padding:14,font:{size:10}}},tooltip:{backgroundColor:'#1a2240',titleColor:'#fff',bodyColor:'rgba(255,255,255,.7)',borderColor:'rgba(255,255,255,.1)',borderWidth:1}},
+    scales:{x:{grid:{display:false},ticks:{color:'rgba(255,255,255,.35)'}},
+            y:{grid:{color:gridColor},ticks:{color:'rgba(255,255,255,.35)'}}},
+    ...extra};
+}
+
+// ── Overview: Revenue split donut ──────────────────────────────────────────
+new Chart(document.getElementById('c-rev-split'),{
+  type:'doughnut',
+  data:{labels:['Email ($310k)','SMS ($270k)'],
+        datasets:[{data:[310544,269903],backgroundColor:[PINK,PURP],borderWidth:0,hoverOffset:6}]},
+  options:{responsive:true,maintainAspectRatio:true,cutout:'68%',
+    plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:16}},
+             tooltip:{callbacks:{label:c=>' $'+c.raw.toLocaleString()}}}}
+});
+
+// ── Overview: RPR compare ──────────────────────────────────────────────────
+new Chart(document.getElementById('c-rpr-compare'),{
+  type:'bar',
+  data:{
+    labels:['Email 1','Email 2','Email 3','Email 4','Email 5','Email 6','SMS 1','SMS 2','SMS 3','SMS 4','SMS 5'],
+    datasets:[{
+      label:'RPR ($)',
+      data:[2.11,0.04,0.07,0.05,0.15,0.05,1.63,0.17,0.14,0.15,0.07],
+      backgroundColor:[PINK,PINK_L,PINK_L,PINK_L,PINK_L,PINK_L,PURP,PURP_L,PURP_L,PURP_L,PURP_L],
+    }]
+  },
+  options:{...baseOpts(),plugins:{...baseOpts().plugins,legend:{display:false}},
+    scales:{x:{grid:{display:false},ticks:{color:'rgba(255,255,255,.35)',maxRotation:45}},
+            y:{grid:{color:gridColor},ticks:{color:'rgba(255,255,255,.35)',callback:v=>'$'+v}}}}
+});
+
+// ── Email: Segment RPR ──────────────────────────────────────────────────────
+new Chart(document.getElementById('c-email-seg-rpr'),{
+  type:'bar',
+  data:{
+    labels:['Baby','Toddler','Kid','Unknown'],
+    datasets:[
+      {label:'RPR ($)',data:[2.08,2.41,1.88,2.47],backgroundColor:[PINK,PURP,AMBER,TEAL],borderRadius:4},
+    ]
+  },
+  options:{...baseOpts(),indexAxis:'y',
+    plugins:{...baseOpts().plugins,legend:{display:false}},
+    scales:{x:{grid:{color:gridColor},ticks:{callback:v=>'$'+v,color:'rgba(255,255,255,.35)'}},
+            y:{grid:{display:false},ticks:{color:'rgba(255,255,255,.5)'}}}}
+});
+
+// ── Email: Segment rates ───────────────────────────────────────────────────
+new Chart(document.getElementById('c-email-seg-rates'),{
+  type:'bar',
+  data:{
+    labels:['Baby','Toddler','Kid','Unknown'],
+    datasets:[
+      {label:'Open Rate %',data:[60.9,61.5,50.5,54.7],backgroundColor:PINK_L,borderColor:PINK,borderWidth:1.5,borderRadius:2},
+      {label:'CVR %',data:[2.07,2.39,1.68,2.31],backgroundColor:PURP,borderRadius:2},
+    ]
+  },
+  options:baseOpts()
+});
+
+// ── Email: Sequence revenue ────────────────────────────────────────────────
+new Chart(document.getElementById('c-email-seq-rev'),{
+  type:'bar',
+  data:{
+    labels:['Email 1\n(Hero)','Email 2\n(CBAB)','Email 3\n(CBAB)','Email 4\n(CBAB)','Email 5\n(Flash)','Email 6\n(Flash)'],
+    datasets:[{
+      label:'Revenue ($)',
+      data:[272823,3845,7916,5222,15355,5385],
+      backgroundColor:[PINK,PINK_L,PINK_L,PINK_L,AMBER,AMBER],
+      borderRadius:4
+    }]
+  },
+  options:{...baseOpts(),
+    plugins:{...baseOpts().plugins,legend:{display:false}},
+    scales:{x:{grid:{display:false},ticks:{color:'rgba(255,255,255,.35)'}},
+            y:{grid:{color:gridColor},ticks:{callback:v=>v>=1000?'$'+(v/1000).toFixed(0)+'k':'$'+v,color:'rgba(255,255,255,.35)'}}}}
+});
+
+// ── Email: Sequence rates ──────────────────────────────────────────────────
+new Chart(document.getElementById('c-email-seq-rates'),{
+  type:'line',
+  data:{
+    labels:['Email 1','Email 2','Email 3','Email 4','Email 5','Email 6'],
+    datasets:[
+      {label:'Open Rate %',data:[59.3,41.9,54.0,42.3,41.8,41.2],borderColor:PINK,backgroundColor:PINK_L,fill:true,tension:.3,pointRadius:4},
+      {label:'Click Rate %',data:[2.65,0.29,0.31,0.37,1.26,0.51],borderColor:AMBER,backgroundColor:'transparent',fill:false,tension:.3,pointRadius:4,yAxisID:'y2'},
+    ]
+  },
+  options:{...baseOpts(),
+    scales:{
+      x:{grid:{display:false},ticks:{color:'rgba(255,255,255,.35)'}},
+      y:{grid:{color:gridColor},ticks:{callback:v=>v+'%',color:'rgba(255,255,255,.35)'},position:'left',title:{display:true,text:'Open Rate',color:'rgba(255,255,255,.3)',font:{size:9}}},
+      y2:{grid:{display:false},ticks:{callback:v=>v+'%',color:'rgba(255,255,255,.25)'},position:'right',title:{display:true,text:'Click Rate',color:'rgba(255,255,255,.2)',font:{size:9}}}
+    }}
+});
+
+// ── SMS: CTR by message ────────────────────────────────────────────────────
+new Chart(document.getElementById('c-sms-ctr'),{
+  type:'bar',
+  data:{
+    labels:['SMS 1\n15OFF','SMS 2\nContact Card','SMS 3\n15OFF','SMS 4\n15OFF','SMS 5\n15OFF'],
+    datasets:[{
+      label:'Click Rate %',
+      data:[7.07,2.08,2.91,2.83,2.67],
+      backgroundColor:[PURP,AMBER,PURP_L,PURP_L,PURP_L],
+      borderRadius:4
+    },{
+      label:'Unsub Rate %',
+      data:[2.54,4.81,3.16,2.30,2.32],
+      backgroundColor:['rgba(239,68,68,.25)','rgba(239,68,68,.75)','rgba(239,68,68,.35)','rgba(239,68,68,.2)','rgba(239,68,68,.2)'],
+      borderRadius:4
+    }]
+  },
+  options:baseOpts()
+});
+
+// ── SMS: Revenue & RPR ─────────────────────────────────────────────────────
+new Chart(document.getElementById('c-sms-rev'),{
+  type:'bar',
+  data:{
+    labels:['SMS 1','SMS 2','SMS 3','SMS 4','SMS 5'],
+    datasets:[
+      {label:'Revenue ($)',data:[204131,23126,16027,15577,4686],backgroundColor:[PURP,'rgba(155,92,246,.5)','rgba(155,92,246,.4)','rgba(155,92,246,.35)','rgba(155,92,246,.25)'],borderRadius:4,yAxisID:'y'},
+      {label:'RPR ($)',data:[1.63,0.17,0.14,0.15,0.07],backgroundColor:GREEN,type:'line',borderColor:GREEN,pointRadius:5,fill:false,yAxisID:'y2'},
+    ]
+  },
+  options:{...baseOpts(),
+    scales:{
+      x:{grid:{display:false},ticks:{color:'rgba(255,255,255,.35)'}},
+      y:{grid:{color:gridColor},ticks:{callback:v=>v>=1000?'$'+(v/1000).toFixed(0)+'k':'$'+v,color:'rgba(255,255,255,.35)'},position:'left'},
+      y2:{grid:{display:false},ticks:{callback:v=>'$'+v,color:'rgba(255,255,255,.25)'},position:'right'}
+    }}
+});
+</script>
+</body>
+</html>
