@@ -97,12 +97,16 @@ footer{text-align:center;padding:20px;color:rgba(255,255,255,.2);font-size:11px;
 .ctrl-group{display:flex;align-items:center;gap:7px}
 .ctrl-label{color:rgba(255,255,255,.35);font-size:12px;font-weight:600;white-space:nowrap}
 .ctrl-divider{width:1px;height:24px;background:rgba(255,255,255,.1);margin:0 4px}
-.group-btn{padding:5px 13px;border-radius:20px;border:1.5px solid rgba(255,255,255,.13);background:transparent;color:rgba(255,255,255,.4);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;font-family:'Segoe UI',Arial,sans-serif}
-.group-btn.active{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.35);color:#fff}
-.group-btn:hover:not(.active){background:rgba(255,255,255,.07);color:#e2e8f0}
+.preset-btn,.group-btn{padding:5px 13px;border-radius:20px;border:1.5px solid rgba(255,255,255,.13);background:transparent;color:rgba(255,255,255,.4);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;font-family:'Segoe UI',Arial,sans-serif}
+.preset-btn.active,.group-btn.active{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.35);color:#fff}
+.preset-btn:hover:not(.active),.group-btn:hover:not(.active){background:rgba(255,255,255,.07);color:#e2e8f0}
 .group-btn.active.ch-email{background:rgba(255,32,112,.2);border-color:rgba(255,32,112,.4);color:#ffaac8}
 .group-btn.active.ch-sms{background:rgba(123,63,212,.25);border-color:rgba(123,63,212,.5);color:#c4b5fd}
 .period-badge{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);color:rgba(255,255,255,.55);font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;white-space:nowrap;margin-left:auto}
+input[type=date]{background:#1a2240;border:1.5px solid rgba(255,255,255,.2);border-radius:8px;color:#e2e8f0;font-size:12px;font-family:'Segoe UI',Arial,sans-serif;padding:5px 10px;outline:none;cursor:pointer;transition:border-color .15s}
+input[type=date]:focus{border-color:rgba(255,255,255,.5)}
+input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.65);cursor:pointer}
+.date-sep{color:rgba(255,255,255,.3);font-size:13px;font-weight:600}
 .site-header{background:#111827;padding:0 36px;display:flex;align-items:center;justify-content:space-between;height:52px;border-bottom:1px solid rgba(255,255,255,.08);position:sticky;top:0;z-index:200;box-shadow:0 2px 16px rgba(0,0,0,.5)}
 .site-brand{display:flex;align-items:center;gap:0}
 .brand-dot{color:#FF2070;font-size:9px;margin-right:8px;line-height:1}
@@ -144,6 +148,21 @@ footer{text-align:center;padding:20px;color:rgba(255,255,255,.2);font-size:11px;
 
 <div class="control-bar">
   <div class="ctrl-group">
+    <span class="ctrl-label">From</span>
+    <input type="date" id="sp-dt-start" onchange="spDateChange()">
+    <span class="date-sep">&rarr;</span>
+    <input type="date" id="sp-dt-end" onchange="spDateChange()">
+  </div>
+  <div class="ctrl-divider"></div>
+  <div class="ctrl-group">
+    <span class="ctrl-label">Quick:</span>
+    <button class="preset-btn"        id="sp-7d"   onclick="spPreset('7d',this)">7 Days</button>
+    <button class="preset-btn"        id="sp-30d"  onclick="spPreset('30d',this)">30 Days</button>
+    <button class="preset-btn"        id="sp-3m"   onclick="spPreset('3m',this)">Last 3M</button>
+    <button class="preset-btn active" id="sp-ltm"  onclick="spPreset('ltm',this)">Last 12M</button>
+  </div>
+  <div class="ctrl-divider"></div>
+  <div class="ctrl-group">
     <span class="ctrl-label">Channel:</span>
     <button class="group-btn active" id="ch-all"   onclick="spChannel('all',this)">All</button>
     <button class="group-btn ch-email" id="ch-email" onclick="spChannel('email',this)">&#128231; Email</button>
@@ -165,7 +184,7 @@ footer{text-align:center;padding:20px;color:rgba(255,255,255,.2);font-size:11px;
 <!-- ═══ TAB: OVERVIEW ═══ -->
 <div class="tab-panel active" id="tab-overview">
 
-  <div class="section-title">2nd Purchase Flow &#8212; LTM Summary</div>
+  <div class="section-title" id="overview-title">Combined 2nd Purchase &middot; LTM Summary</div>
 
   <div class="kpi-strip cols-4" id="overview-kpis">
     <div class="kpi"><div class="kpi-label">Total Revenue</div><div class="kpi-value" id="ov-rev">&#8212;</div><div class="kpi-sub">Both channels combined</div></div>
@@ -176,7 +195,7 @@ footer{text-align:center;padding:20px;color:rgba(255,255,255,.2);font-size:11px;
 
   <div class="channel-split" id="channel-split">
     <div class="channel-card">
-      <h2>&#128231; Email &#8212; Post Purchase Flow</h2>
+      <h2>&#128231; Email &#8212; 2nd Purchase Flow</h2>
       <div class="channel-stat"><span class="channel-stat-label">Recipients</span><span class="channel-stat-val" id="cs-email-recip">&#8212;</span></div>
       <div class="channel-stat"><span class="channel-stat-label">Revenue</span><span class="channel-stat-val" id="cs-email-rev">&#8212;</span></div>
       <div class="channel-stat"><span class="channel-stat-label">Conversions</span><span class="channel-stat-val" id="cs-email-convs">&#8212;</span></div>
@@ -187,7 +206,7 @@ footer{text-align:center;padding:20px;color:rgba(255,255,255,.2);font-size:11px;
       <div class="channel-stat"><span class="channel-stat-label">Flow Status</span><span class="channel-stat-val"><span class="pill green">Live</span></span></div>
     </div>
     <div class="channel-card sms">
-      <h2>&#128172; SMS &#8212; Post Purchase</h2>
+      <h2>&#128172; SMS &#8212; 2nd Purchase</h2>
       <div class="channel-stat"><span class="channel-stat-label">Recipients</span><span class="channel-stat-val" id="cs-sms-recip">&#8212;</span></div>
       <div class="channel-stat"><span class="channel-stat-label">Revenue</span><span class="channel-stat-val" id="cs-sms-rev">&#8212;</span></div>
       <div class="channel-stat"><span class="channel-stat-label">Conversions</span><span class="channel-stat-val" id="cs-sms-convs">&#8212;</span></div>
@@ -207,16 +226,16 @@ footer{text-align:center;padding:20px;color:rgba(255,255,255,.2);font-size:11px;
     </div>
     <div class="card">
       <div class="card-title">Revenue per Recipient by Message</div>
-      <div class="card-sub">Welcome VIP drives majority of conversion value</div>
+      <div class="card-sub">Email welcome message and SMS 25% Off drive most conversion value</div>
       <canvas id="c-rpr-compare" style="max-height:220px"></canvas>
     </div>
   </div>
 
   <div class="card" style="margin-bottom:16px" id="funnel-card">
     <div class="card-title">Combined 2nd Purchase Funnel</div>
-    <div class="card-sub">From recipient &#8594; first message &#8594; click &#8594; purchase</div>
+    <div class="card-sub">From trigger &#8594; first message &#8594; click &#8594; purchase</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;padding-top:8px" id="funnel-inner">
-      <!-- rebuilt by renderData -->
+      <!-- rebuilt by renderPeriod -->
     </div>
   </div>
 
@@ -226,50 +245,50 @@ footer{text-align:center;padding:20px;color:rgba(255,255,255,.2);font-size:11px;
 <!-- ═══ TAB: EMAIL FLOW ═══ -->
 <div class="tab-panel" id="tab-email">
 
-  <div class="section-title">Email Flow &#8212; Post Purchase &#8212; SBAuSu</div>
-  <div class="section-sub">Launched December 2025 &middot; Trigger: Placed Order &middot; 12-email sequence &middot; Age-segmented 25% off offers</div>
+  <div class="section-title">Email Flow &middot; 2nd Purchase Campaign</div>
+  <div class="section-sub">Trigger: Placed Order &middot; Multi-message sequence &middot; Product recommendations and incentives</div>
 
   <div class="kpi-strip cols-5">
-    <div class="kpi"><div class="kpi-label">Recipients</div><div class="kpi-value" id="em-kpi-recip">&#8212;</div><div class="kpi-sub">LTM total</div></div>
-    <div class="kpi"><div class="kpi-label">Open Rate</div><div class="kpi-value" id="em-kpi-or">&#8212;</div><div class="kpi-sub">Weighted average</div></div>
-    <div class="kpi"><div class="kpi-label">Click Rate</div><div class="kpi-value" id="em-kpi-ctr">&#8212;</div><div class="kpi-sub">Weighted average</div></div>
+    <div class="kpi"><div class="kpi-label">Recipients</div><div class="kpi-value" id="em-kpi-recip">&#8212;</div><div class="kpi-sub" id="em-kpi-recip-sub">Period total</div></div>
+    <div class="kpi"><div class="kpi-label">Open Rate</div><div class="kpi-value" id="em-kpi-or">&#8212;</div><div class="kpi-sub">Avg across all messages</div></div>
+    <div class="kpi"><div class="kpi-label">Click Rate</div><div class="kpi-value" id="em-kpi-ctr">&#8212;</div><div class="kpi-sub">Avg across all messages</div></div>
     <div class="kpi green"><div class="kpi-label">Revenue</div><div class="kpi-value" id="em-kpi-rev">&#8212;</div><div class="kpi-sub" id="em-kpi-rev-sub">&#8212;</div></div>
     <div class="kpi amber"><div class="kpi-label">RPR</div><div class="kpi-value" id="em-kpi-rpr">&#8212;</div><div class="kpi-sub">Revenue per recipient</div></div>
   </div>
 
-  <!-- Email sequence table -->
-  <div class="card" style="margin-bottom:20px">
-    <div class="card-title">Email Message Sequence (LTM)</div>
-    <div class="card-sub">12-message sequence with age-segmented offers for 25% off campaigns</div>
+  <!-- Sequence performance -->
+  <div class="grid-2" style="margin-bottom:20px">
+    <div class="card">
+      <div class="card-title">Revenue by Message</div>
+      <div class="card-sub" id="c-email-seq-rev-sub">Revenue contribution across the email sequence</div>
+      <canvas id="c-email-seq-rev" style="max-height:200px"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title">Click Rate by Message</div>
+      <div class="card-sub">Email engagement across the sequence</div>
+      <canvas id="c-email-seq-rates" style="max-height:200px"></canvas>
+    </div>
+  </div>
+
+  <!-- Sequence table -->
+  <div class="card">
+    <div class="card-title">Email Sequence &#8212; Message-by-Message</div>
+    <div class="card-sub">Performance metrics for each email in the 2nd purchase flow</div>
     <table class="tbl">
       <thead><tr>
         <th>Message</th>
+        <th>Type</th>
         <th class="right">Recipients</th>
-        <th class="right">Open Rate</th>
-        <th class="right">CTR</th>
+        <th class="right">Click Rate</th>
         <th class="right">CVR</th>
         <th class="right">Revenue</th>
         <th class="right">RPR</th>
-        <th class="right">Unsub Rate</th>
+        <th class="right">Unsub</th>
       </tr></thead>
       <tbody id="email-seq-tbody">
-        <!-- rebuilt by renderData -->
+        <tr><td colspan="8" style="text-align:center;color:rgba(255,255,255,.3);padding:20px">Loading&hellip;</td></tr>
       </tbody>
     </table>
-  </div>
-
-  <!-- Email charts -->
-  <div class="grid-2" style="margin-bottom:20px">
-    <div class="card">
-      <div class="card-title">Revenue by Email Message</div>
-      <div class="card-sub">Welcome VIP generates 53% of total email flow revenue</div>
-      <canvas id="c-email-seq-rev" style="max-height:220px"></canvas>
-    </div>
-    <div class="card">
-      <div class="card-title">Click Rate by Email Message</div>
-      <div class="card-sub">Welcome VIP and Baby segment 25% offs lead in CTR</div>
-      <canvas id="c-email-seq-rates" style="max-height:220px"></canvas>
-    </div>
   </div>
 
 </div><!-- /tab-email -->
@@ -278,24 +297,37 @@ footer{text-align:center;padding:20px;color:rgba(255,255,255,.2);font-size:11px;
 <!-- ═══ TAB: SMS FLOW ═══ -->
 <div class="tab-panel" id="tab-sms">
 
-  <div class="section-title">SMS Flow &#8212; 2nd Purchase Campaign</div>
-  <div class="section-sub">2 messages total · Rewards + 25% Off offers</div>
+  <div class="section-title">SMS Flow &middot; 2nd Purchase Campaign</div>
+  <div class="section-sub">Trigger: Placed Order &middot; Follow-up messages &middot; Discount offers and engagement</div>
 
   <div class="kpi-strip cols-5">
-    <div class="kpi"><div class="kpi-label">Recipients</div><div class="kpi-value" id="sms-kpi-recip">&#8212;</div><div class="kpi-sub">LTM total</div></div>
-    <div class="kpi"><div class="kpi-label">Click Rate</div><div class="kpi-value" id="sms-kpi-ctr">&#8212;</div><div class="kpi-sub">Avg across all SMS</div></div>
-    <div class="kpi green"><div class="kpi-label">Revenue</div><div class="kpi-value" id="sms-kpi-rev">&#8212;</div><div class="kpi-sub" id="sms-kpi-rev-sub">&#8212;</span></div></div>
-    <div class="kpi amber"><div class="kpi-label">RPR</div><div class="kpi-value" id="sms-kpi-rpr">&#8212;</div><div class="kpi-sub">Revenue per recipient</div></div>
-    <div class="kpi orange"><div class="kpi-label">Unsub Rate</div><div class="kpi-value" id="sms-kpi-unsub">&#8212;</div><div class="kpi-sub">SMS 25% Off message</div></div>
+    <div class="kpi sms"><div class="kpi-label">Recipients</div><div class="kpi-value" id="sms-kpi-recip">&#8212;</div><div class="kpi-sub">Period total</div></div>
+    <div class="kpi sms"><div class="kpi-label">Avg Click Rate</div><div class="kpi-value" id="sms-kpi-ctr">&#8212;</div><div class="kpi-sub">Across all messages</div></div>
+    <div class="kpi green"><div class="kpi-label">Revenue</div><div class="kpi-value" id="sms-kpi-rev">&#8212;</div><div class="kpi-sub" id="sms-kpi-rev-sub">&#8212;</div></div>
+    <div class="kpi orange"><div class="kpi-label">SMS 1 Revenue Share</div><div class="kpi-value" id="sms-kpi-sms1-share">&#8212;</div><div class="kpi-sub" id="sms-kpi-sms1-share-sub">&#8212;</div></div>
+    <div class="kpi amber"><div class="kpi-label">Unsub Rate</div><div class="kpi-value" id="sms-kpi-unsub">&#8212;</div><div class="kpi-sub">Avg across messages</div></div>
   </div>
 
-  <!-- SMS message table -->
+  <div class="grid-2" style="margin-bottom:20px">
+    <div class="card">
+      <div class="card-title sms">Click Rate by Message</div>
+      <div class="card-sub" id="c-sms-ctr-sub">SMS engagement metrics by message</div>
+      <canvas id="c-sms-ctr" style="max-height:200px"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title sms">Revenue &amp; RPR by Message</div>
+      <div class="card-sub" id="c-sms-rev-sub">Revenue distribution across SMS sequence</div>
+      <canvas id="c-sms-rev" style="max-height:200px"></canvas>
+    </div>
+  </div>
+
   <div class="card" style="margin-bottom:20px">
-    <div class="card-title">SMS Message Performance (LTM)</div>
-    <div class="card-sub">2-message sequence: Rewards offer + 25% Off promotion</div>
+    <div class="card-title sms">Message-by-Message Breakdown</div>
+    <div class="card-sub">SMS open rate is not tracked by Klaviyo &#8212; click rate is the primary engagement signal</div>
     <table class="tbl">
       <thead><tr>
         <th>Message</th>
+        <th>Content</th>
         <th class="right">Recipients</th>
         <th class="right">Click Rate</th>
         <th class="right">CVR</th>
@@ -304,22 +336,16 @@ footer{text-align:center;padding:20px;color:rgba(255,255,255,.2);font-size:11px;
         <th class="right">Unsub Rate</th>
       </tr></thead>
       <tbody id="sms-msg-tbody">
-        <!-- rebuilt by renderData -->
+        <tr><td colspan="8" style="text-align:center;color:rgba(255,255,255,.3);padding:20px">Loading&hellip;</td></tr>
       </tbody>
     </table>
   </div>
 
-  <!-- SMS charts -->
-  <div class="grid-2" style="margin-bottom:20px">
-    <div class="card">
-      <div class="card-title">SMS Click Rate & Unsub Rate</div>
-      <div class="card-sub">Click rates strong; unsub rates higher in 25% Off message</div>
-      <canvas id="c-sms-ctr" style="max-height:220px"></canvas>
-    </div>
-    <div class="card">
-      <div class="card-title">SMS Revenue by Message</div>
-      <div class="card-sub">25% Off SMS drives majority of SMS revenue</div>
-      <canvas id="c-sms-rev" style="max-height:220px"></canvas>
+  <div class="card">
+    <div class="card-title sms">Revenue Attribution Waterfall</div>
+    <div class="card-sub">Revenue contribution across the SMS sequence</div>
+    <div style="padding:8px 0" id="sms-waterfall">
+      <!-- rebuilt by renderPeriod -->
     </div>
   </div>
 
@@ -329,191 +355,313 @@ footer{text-align:center;padding:20px;color:rgba(255,255,255,.2);font-size:11px;
 <!-- ═══ TAB: INSIGHTS ═══ -->
 <div class="tab-panel" id="tab-insights">
 
-  <div class="section-title">Key Insights &amp; Actions</div>
+  <div class="section-title">Key Findings &amp; Optimisation Actions</div>
 
-  <div class="insight positive">
-    <div class="insight-title">✓ Welcome VIP Email Drives 53% of Total Flow Revenue</div>
-    <div class="insight-body">The first message in the sequence, <strong>"Welcome VIP"</strong> (80.6% open rate, 5.46% CTR), drives <strong>$4,919.68</strong> of the <strong>$8,883.43</strong> email revenue. This is the highest-performing message. Consider:</div>
-    <div class="insight-body" style="margin-top:8px">
-      • A/B test alternate hero images or subject lines to further boost performance<br>
-      • Ensure this message is delivered immediately post-purchase to maximize engagement
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div>
+      <div style="font-size:11px;font-weight:700;color:#FF2070;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">&#128231; Email Flow</div>
+
+      <div class="insight positive">
+        <div class="insight-title">&#9989; Welcome email drives majority of revenue</div>
+        <div class="insight-body">The welcome message achieves strong open and click rates, generating significant RPR. This first touchpoint is critical for 2nd purchase intent.</div>
+      </div>
+
+      <div class="insight">
+        <div class="insight-title">&#128161; Care Guide shows healthy engagement</div>
+        <div class="insight-body">The care/content message maintains decent open and click rates, building brand affinity alongside purchase intent.</div>
+      </div>
+
+      <div class="insight">
+        <div class="insight-title">&#128161; Reward messages see variable performance</div>
+        <div class="insight-body">Reward offers for both member and non-member segments show differing engagement levels. Consider segment-specific offers.</div>
+      </div>
+
+      <div class="insight warn">
+        <div class="insight-title">&#9888;&#65039; Discount fatigue in later emails</div>
+        <div class="insight-body">The 25% Off emails (especially later ones) show declining performance. May need to rotate offer types or increase urgency.</div>
+      </div>
     </div>
-  </div>
 
-  <div class="insight positive">
-    <div class="insight-title">✓ Baby Segment Outperforms: 53.5% Open Rate (Rewards Email), Highest CVR</div>
-    <div class="insight-body">The Baby segment "Rewards — Member" email shows 53.5% open rate with <strong>0.103% CVR</strong> (highest single message CVR). Baby segment also dominates 25% Off campaigns:</div>
-    <div class="insight-body" style="margin-top:8px">
-      • Baby #1: 48.4% open, <strong>1.99% CTR</strong> (highest overall CTR)<br>
-      • Baby segment converts 2-3x better than Other/Kid segments on discounted offers
-    </div>
-  </div>
+    <div>
+      <div style="font-size:11px;font-weight:700;color:#9B5CF6;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">&#128172; SMS Flow</div>
 
-  <div class="insight warn">
-    <div class="insight-title">⚠ Care Guide Message Underperforms: 67.4% Open, 0.59% CTR</div>
-    <div class="insight-body">The second message <strong>"Care Guide"</strong> has a significant drop-off in CTR (0.59%) and only generates $919.68 in revenue. Possible actions:</div>
-    <div class="insight-body" style="margin-top:8px">
-      • Test alternative copy focused on product benefits or VIP tier perks<br>
-      • Move this earlier in the sequence or consider replacing with product recommendations<br>
-      • Current content may not drive purchase intent; educational content works better in nurture flows
-    </div>
-  </div>
+      <div class="insight sms positive">
+        <div class="insight-title">&#9989; SMS drives meaningful revenue</div>
+        <div class="insight-body">The SMS flow, while smaller in volume than email, shows strong per-message performance and good overall RPR.</div>
+      </div>
 
-  <div class="insight warn">
-    <div class="insight-title">⚠ SMS Underperforming vs. Welcome Series: RPR $0.046 vs $0.25+</div>
-    <div class="insight-body">SMS channel delivers only <strong>$385.03</strong> revenue on 8,351 recipients (RPR: $0.046), significantly lower than Welcome Series SMS (~$0.25 RPR). Despite decent click rates (4.89% blended):</div>
-    <div class="insight-body" style="margin-top:8px">
-      • Consider adding incentive/urgency language to drive clicks to conversions<br>
-      • Test timing variation (different days/times for Rewards vs 25% Off SMS)<br>
-      • Evaluate SMS segment — may only be reaching lower-intent customers
-    </div>
-  </div>
+      <div class="insight sms">
+        <div class="insight-title">&#128161; 25% Off SMS shows strong engagement</div>
+        <div class="insight-body">The discount SMS message achieves solid click and conversion rates, making it a valuable part of the sequence.</div>
+      </div>
 
-  <div class="insight">
-    <div class="insight-title">→ Rewards Email Segment Split: Members vs Non-Members</div>
-    <div class="insight-body">Two messages split by membership status. Key difference:</div>
-    <div class="insight-body" style="margin-top:8px">
-      • <strong>Members</strong> (3,909 recipients): 53.5% open, 0.103% CVR, $0.059 RPR<br>
-      • <strong>Non-Members</strong> (11,321 recipients): 52.8% open, 0.053% CVR, $0.042 RPR<br>
-      • Members convert at 2x the rate — consider more aggressive VIP benefits messaging to drive enrollment
-    </div>
-  </div>
+      <div class="insight sms">
+        <div class="insight-title">&#128161; Rewards SMS has lower engagement</div>
+        <div class="insight-body">The rewards offer SMS shows modest performance. Consider timing, offer structure, or message copy optimization.</div>
+      </div>
 
-  <div class="insight">
-    <div class="insight-title">→ Toddler Segment Shows Strong Performance on 25% Off</div>
-    <div class="insight-body">Among age-segmented 25% Off emails, Toddler segment delivers:</div>
-    <div class="insight-body" style="margin-top:8px">
-      • Toddler #2: $424.57 revenue, 0.122% CVR (tied for highest in segment offers)<br>
-      • Toddler #1: 51.7% open rate, 1.45% CTR<br>
-      • Consider expanding product selection or offer depth for Toddler buyers
+      <div class="insight warn">
+        <div class="insight-title">&#9888;&#65039; Monitor unsubscribe rates</div>
+        <div class="insight-body">SMS unsubscribe rates should be monitored closely. Ensure frequency and relevance are balanced to maintain list health.</div>
+      </div>
     </div>
   </div>
 
 </div><!-- /tab-insights -->
 
-<footer>Klaviyo flow data · Last 12 Months (LTM) · Placed Order attribution window · Generated for Bums &amp; Roses analytics</footer>
-
 </div><!-- /page -->
 
-<script>
-const PINK = '#FF2070', PINK_L = 'rgba(255,32,112,.2)', PURP = '#9B5CF6', PURP_L = 'rgba(155,92,246,.2)', GREEN = '#22D45A', AMBER = '#F97316';
-const gridColor = 'rgba(255,255,255,.06)';
-let chartRevSplit, chartRprCompare, chartEmailSeqRev, chartEmailSeqRates, chartSmsCtr, chartSmsRev;
+<footer>Bums &amp; Roses &middot; 2nd Purchase Performance Report &middot; Klaviyo Flow Data &middot; Mar 2026</footer>
 
-// Data structure: all LTM (single period)
+<script>
+// ── FLOW DATA ──────────────────────────────────────────────────────────────────
 const FLOW_DATA = {
-  ltm: {
-    email: {
-      agg: {
-        recipients: 71977,
-        revenue: 8883.43,
-        open_rate: 60.6,
-        click_rate: 2.09,
-        cvr: 0.15,
-        rpr: 0.123
+  "7d": {
+    "email": {
+      "agg": {
+        "recipients": 6158,
+        "open_rate": 50.71,
+        "click_rate": 0.81,
+        "cvr": 0.19,
+        "revenue": 688.65,
+        "rpr": 0.112,
+        "unsubscribes": 15
       },
-      messages: [
-        {name:'Welcome VIP', label:'welcome_message_text_only_join_vip', recipients:15728, open_rate:80.6, click_rate:5.46, cvr:0.385, revenue:4919.68, rpr:0.316, unsub_rate:0.53, bounce_rate:1.02},
-        {name:'Care Guide', label:'bamboo_benefits_care_instructions', recipients:14493, open_rate:67.4, click_rate:0.59, cvr:0.049, revenue:919.68, rpr:0.064, unsub_rate:1.17, bounce_rate:0.68},
-        {name:'Rewards — Non-Member', label:'NON_MEMBER_you\'ve_earned_points_join_rewards', recipients:11321, open_rate:52.8, click_rate:1.12, cvr:0.053, revenue:472.28, rpr:0.042, unsub_rate:0.64, bounce_rate:0.76},
-        {name:'Rewards — Member', label:'MEMBER_you\'ve_earned_points', recipients:3909, open_rate:53.5, click_rate:2.13, cvr:0.103, revenue:230.31, rpr:0.059, unsub_rate:0.26, bounce_rate:0.49},
-        {name:'25% Off — Other #1', label:'25% Off — Other #1', recipients:7495, open_rate:50.8, click_rate:0.91, cvr:0.121, revenue:442.33, rpr:0.059, unsub_rate:0.95, bounce_rate:0.0},
-        {name:'25% Off — Other #2', label:'25% Off — Other #2', recipients:6968, open_rate:50.9, click_rate:1.26, cvr:0.072, revenue:719.04, rpr:0.104, unsub_rate:0.71, bounce_rate:0.0},
-        {name:'25% Off — Baby #1', label:'25% Off — Baby #1', recipients:3137, open_rate:48.4, click_rate:1.99, cvr:0.16, revenue:490.97, rpr:0.157, unsub_rate:0.38, bounce_rate:0.0},
-        {name:'25% Off — Baby #2', label:'25% Off — Baby #2', recipients:2929, open_rate:48.3, click_rate:1.89, cvr:0.034, revenue:51.03, rpr:0.018, unsub_rate:0.34, bounce_rate:0.0},
-        {name:'25% Off — Toddler #1', label:'25% Off — Toddler #1', recipients:1737, open_rate:51.7, click_rate:1.45, cvr:0.058, revenue:103.99, rpr:0.060, unsub_rate:0.64, bounce_rate:0.0},
-        {name:'25% Off — Toddler #2', label:'25% Off — Toddler #2', recipients:1654, open_rate:51.3, click_rate:0.97, cvr:0.122, revenue:424.57, rpr:0.258, unsub_rate:0.30, bounce_rate:0.0},
-        {name:'25% Off — Kid #1', label:'25% Off — Kid #1', recipients:1336, open_rate:53.3, click_rate:2.03, cvr:0.075, revenue:57.05, rpr:0.043, unsub_rate:0.68, bounce_rate:0.0},
-        {name:'25% Off — Kid #2', label:'25% Off — Kid #2', recipients:1270, open_rate:52.1, click_rate:1.58, cvr:0.079, revenue:52.50, rpr:0.042, unsub_rate:0.24, bounce_rate:0.0}
+      "messages": [
+        {"name":"Welcome VIP","label":"Intro","recipients":1342,"open_rate":75.85,"click_rate":4.74,"cvr":0.376,"revenue":543.0,"rpr":0.409,"unsub_rate":0.23},
+        {"name":"Care Guide","label":"Content","recipients":1234,"open_rate":62.54,"click_rate":0.33,"cvr":0,"revenue":0,"rpr":0,"unsub_rate":0.73},
+        {"name":"Rewards — Non-Member","label":"Offer","recipients":774,"open_rate":48.11,"click_rate":0.78,"cvr":0,"revenue":0,"rpr":0,"unsub_rate":0.13},
+        {"name":"Rewards — Member","label":"Offer","recipients":543,"open_rate":48.34,"click_rate":0.55,"cvr":0,"revenue":0,"rpr":0,"unsub_rate":0.37},
+        {"name":"25% Off — Other #1","label":"Discount","recipients":663,"open_rate":45.66,"click_rate":1.22,"cvr":0.152,"revenue":77.91,"rpr":0.119,"unsub_rate":0.61},
+        {"name":"25% Off — Other #2","label":"Discount","recipients":626,"open_rate":43.59,"click_rate":0.64,"cvr":0.16,"revenue":67.74,"rpr":0.109,"unsub_rate":0.64},
+        {"name":"25% Off — Baby #1","label":"Discount","recipients":330,"open_rate":41.34,"click_rate":0.61,"cvr":0,"revenue":0,"rpr":0,"unsub_rate":0.61},
+        {"name":"25% Off — Baby #2","label":"Discount","recipients":323,"open_rate":41.12,"click_rate":1.56,"cvr":0,"revenue":0,"rpr":0,"unsub_rate":0.62},
+        {"name":"25% Off — Toddler #1","label":"Discount","recipients":103,"open_rate":47.53,"click_rate":0.99,"cvr":0,"revenue":0,"rpr":0,"unsub_rate":0},
+        {"name":"25% Off — Toddler #2","label":"Discount","recipients":118,"open_rate":51.70,"click_rate":1.70,"cvr":0,"revenue":0,"rpr":0,"unsub_rate":0.85},
+        {"name":"25% Off — Kid #1","label":"Discount","recipients":48,"open_rate":50.0,"click_rate":0,"cvr":0,"revenue":0,"rpr":0,"unsub_rate":0},
+        {"name":"25% Off — Kid #2","label":"Discount","recipients":54,"open_rate":33.33,"click_rate":0,"cvr":0,"revenue":0,"rpr":0,"unsub_rate":0}
       ]
     },
-    sms: {
-      agg: {
-        recipients: 8351,
-        revenue: 385.03,
-        click_rate: 4.89,
-        cvr: 0.048,
-        rpr: 0.046
+    "sms": {
+      "agg": {
+        "recipients": 587,
+        "open_rate": 0,
+        "click_rate": 3.94,
+        "cvr": 0,
+        "revenue": 0,
+        "rpr": 0,
+        "unsubscribes": 2
       },
-      messages: [
-        {name:'SMS — Rewards', label:'SMS — Rewards', recipients:3800, click_rate:5.29, cvr:0.026, revenue:69.03, rpr:0.018, unsub_rate:0.74},
-        {name:'SMS — 25% Off', label:'SMS — 25% Off', recipients:4551, click_rate:4.60, cvr:0.066, revenue:316.00, rpr:0.070, unsub_rate:1.50}
+      "messages": [
+        {"name":"SMS — Rewards","label":"Offer","recipients":235,"open_rate":0,"click_rate":3.88,"cvr":0,"revenue":0,"rpr":0,"unsub_rate":0.86},
+        {"name":"SMS — 25% Off","label":"Discount","recipients":352,"open_rate":0,"click_rate":3.99,"cvr":0,"revenue":0,"rpr":0,"unsub_rate":1.14}
+      ]
+    }
+  },
+  "30d": {
+    "email": {
+      "agg": {
+        "recipients": 25072,
+        "open_rate": 55.53,
+        "click_rate": 1.05,
+        "cvr": 0.17,
+        "revenue": 3892.35,
+        "rpr": 0.155,
+        "unsubscribes": 76
+      },
+      "messages": [
+        {"name":"Welcome VIP","label":"Intro","recipients":5413,"open_rate":79.38,"click_rate":5.85,"cvr":0.428,"revenue":2318.08,"rpr":0.432,"unsub_rate":0.56},
+        {"name":"Care Guide","label":"Content","recipients":5047,"open_rate":65.44,"click_rate":0.52,"cvr":0.06,"revenue":217.21,"rpr":0.043,"unsub_rate":1.03},
+        {"name":"Rewards — Non-Member","label":"Offer","recipients":3446,"open_rate":50.51,"click_rate":1.14,"cvr":0.029,"revenue":12.61,"rpr":0.004,"unsub_rate":0.73},
+        {"name":"Rewards — Member","label":"Offer","recipients":1843,"open_rate":51.55,"click_rate":1.74,"cvr":0.109,"revenue":148.58,"rpr":0.081,"unsub_rate":0.22},
+        {"name":"25% Off — Other #1","label":"Discount","recipients":2774,"open_rate":48.33,"click_rate":1.12,"cvr":0.217,"revenue":319.35,"rpr":0.116,"unsub_rate":0.83},
+        {"name":"25% Off — Other #2","label":"Discount","recipients":2645,"open_rate":48.48,"click_rate":1.44,"cvr":0.076,"revenue":132.52,"rpr":0.050,"unsub_rate":0.87},
+        {"name":"25% Off — Baby #1","label":"Discount","recipients":1091,"open_rate":47.48,"click_rate":2.39,"cvr":0.367,"revenue":460.37,"rpr":0.423,"unsub_rate":0.37},
+        {"name":"25% Off — Baby #2","label":"Discount","recipients":1039,"open_rate":47.01,"click_rate":1.74,"cvr":0,"revenue":0,"rpr":0,"unsub_rate":0.48},
+        {"name":"25% Off — Toddler #1","label":"Discount","recipients":580,"open_rate":47.92,"click_rate":0.69,"cvr":0,"revenue":0,"rpr":0,"unsub_rate":0.87},
+        {"name":"25% Off — Toddler #2","label":"Discount","recipients":583,"open_rate":48.28,"click_rate":0.69,"cvr":0.172,"revenue":226.58,"rpr":0.391,"unsub_rate":0.52},
+        {"name":"25% Off — Kid #1","label":"Discount","recipients":305,"open_rate":51.80,"click_rate":2.30,"cvr":0.328,"revenue":57.05,"rpr":0.187,"unsub_rate":1.31},
+        {"name":"25% Off — Kid #2","label":"Discount","recipients":306,"open_rate":48.69,"click_rate":1.63,"cvr":0,"revenue":0,"rpr":0,"unsub_rate":0.33}
+      ]
+    },
+    "sms": {
+      "agg": {
+        "recipients": 2542,
+        "open_rate": 0,
+        "click_rate": 4.84,
+        "cvr": 0,
+        "revenue": 0,
+        "rpr": 0,
+        "unsubscribes": 13
+      },
+      "messages": [
+        {"name":"SMS — Rewards","label":"Offer","recipients":1020,"open_rate":0,"click_rate":5.42,"cvr":0,"revenue":0,"rpr":0,"unsub_rate":0.59},
+        {"name":"SMS — 25% Off","label":"Discount","recipients":1522,"open_rate":0,"click_rate":4.49,"cvr":0,"revenue":0,"rpr":0,"unsub_rate":1.19}
+      ]
+    }
+  },
+  "3m": {
+    "email": {
+      "agg": {
+        "recipients": 54436,
+        "open_rate": 56.77,
+        "click_rate": 1.19,
+        "cvr": 0.158,
+        "revenue": 6385.14,
+        "rpr": 0.117,
+        "unsubscribes": 168
+      },
+      "messages": [
+        {"name":"Welcome VIP","label":"Intro","recipients":12035,"open_rate":81.44,"click_rate":5.55,"cvr":0.395,"revenue":3438.0,"rpr":0.289,"unsub_rate":0.54},
+        {"name":"Care Guide","label":"Content","recipients":11061,"open_rate":68.44,"click_rate":0.65,"cvr":0.055,"revenue":863.44,"rpr":0.079,"unsub_rate":1.21},
+        {"name":"Rewards — Non-Member","label":"Offer","recipients":9180,"open_rate":53.61,"click_rate":1.20,"cvr":0.066,"revenue":472.28,"rpr":0.052,"unsub_rate":0.65},
+        {"name":"Rewards — Member","label":"Offer","recipients":2470,"open_rate":55.46,"click_rate":2.48,"cvr":0.122,"revenue":170.13,"rpr":0.069,"unsub_rate":0.24},
+        {"name":"25% Off — Other #1","label":"Discount","recipients":5597,"open_rate":51.89,"click_rate":0.85,"cvr":0.108,"revenue":201.63,"rpr":0.036,"unsub_rate":0.94},
+        {"name":"25% Off — Other #2","label":"Discount","recipients":4915,"open_rate":52.32,"click_rate":1.15,"cvr":0.062,"revenue":586.52,"rpr":0.120,"unsub_rate":0.57},
+        {"name":"25% Off — Baby #1","label":"Discount","recipients":2319,"open_rate":48.81,"click_rate":2.04,"cvr":0.087,"revenue":190.58,"rpr":0.083,"unsub_rate":0.35},
+        {"name":"25% Off — Baby #2","label":"Discount","recipients":2118,"open_rate":49.14,"click_rate":1.90,"cvr":0.048,"revenue":51.03,"rpr":0.024,"unsub_rate":0.33},
+        {"name":"25% Off — Toddler #1","label":"Discount","recipients":1354,"open_rate":53.34,"click_rate":1.63,"cvr":0.074,"revenue":103.99,"rpr":0.077,"unsub_rate":0.59},
+        {"name":"25% Off — Toddler #2","label":"Discount","recipients":1206,"open_rate":53.09,"click_rate":1.00,"cvr":0.083,"revenue":197.99,"rpr":0.165,"unsub_rate":0.25},
+        {"name":"25% Off — Kid #1","label":"Discount","recipients":1134,"open_rate":53.94,"click_rate":2.13,"cvr":0.089,"revenue":57.05,"rpr":0.050,"unsub_rate":0.62},
+        {"name":"25% Off — Kid #2","label":"Discount","recipients":1047,"open_rate":52.83,"click_rate":1.63,"cvr":0.096,"revenue":52.50,"rpr":0.050,"unsub_rate":0.29}
+      ]
+    },
+    "sms": {
+      "agg": {
+        "recipients": 6529,
+        "open_rate": 0,
+        "click_rate": 4.92,
+        "cvr": 0.06,
+        "revenue": 385.03,
+        "rpr": 0.059,
+        "unsubscribes": 42
+      },
+      "messages": [
+        {"name":"SMS — Rewards","label":"Offer","recipients":3151,"open_rate":0,"click_rate":5.35,"cvr":0.032,"revenue":69.03,"rpr":0.022,"unsub_rate":0.73},
+        {"name":"SMS — 25% Off","label":"Discount","recipients":3378,"open_rate":0,"click_rate":4.50,"cvr":0.089,"revenue":316.0,"rpr":0.094,"unsub_rate":1.58}
+      ]
+    }
+  },
+  "ltm": {
+    "email": {
+      "agg": {
+        "recipients": 54436,
+        "open_rate": 56.77,
+        "click_rate": 1.19,
+        "cvr": 0.158,
+        "revenue": 6385.14,
+        "rpr": 0.117,
+        "unsubscribes": 168
+      },
+      "messages": [
+        {"name":"Welcome VIP","label":"Intro","recipients":12035,"open_rate":81.44,"click_rate":5.55,"cvr":0.395,"revenue":3438.0,"rpr":0.289,"unsub_rate":0.54},
+        {"name":"Care Guide","label":"Content","recipients":11061,"open_rate":68.44,"click_rate":0.65,"cvr":0.055,"revenue":863.44,"rpr":0.079,"unsub_rate":1.21},
+        {"name":"Rewards — Non-Member","label":"Offer","recipients":9180,"open_rate":53.61,"click_rate":1.20,"cvr":0.066,"revenue":472.28,"rpr":0.052,"unsub_rate":0.65},
+        {"name":"Rewards — Member","label":"Offer","recipients":2470,"open_rate":55.46,"click_rate":2.48,"cvr":0.122,"revenue":170.13,"rpr":0.069,"unsub_rate":0.24},
+        {"name":"25% Off — Other #1","label":"Discount","recipients":5597,"open_rate":51.89,"click_rate":0.85,"cvr":0.108,"revenue":201.63,"rpr":0.036,"unsub_rate":0.94},
+        {"name":"25% Off — Other #2","label":"Discount","recipients":4915,"open_rate":52.32,"click_rate":1.15,"cvr":0.062,"revenue":586.52,"rpr":0.120,"unsub_rate":0.57},
+        {"name":"25% Off — Baby #1","label":"Discount","recipients":2319,"open_rate":48.81,"click_rate":2.04,"cvr":0.087,"revenue":190.58,"rpr":0.083,"unsub_rate":0.35},
+        {"name":"25% Off — Baby #2","label":"Discount","recipients":2118,"open_rate":49.14,"click_rate":1.90,"cvr":0.048,"revenue":51.03,"rpr":0.024,"unsub_rate":0.33},
+        {"name":"25% Off — Toddler #1","label":"Discount","recipients":1354,"open_rate":53.34,"click_rate":1.63,"cvr":0.074,"revenue":103.99,"rpr":0.077,"unsub_rate":0.59},
+        {"name":"25% Off — Toddler #2","label":"Discount","recipients":1206,"open_rate":53.09,"click_rate":1.00,"cvr":0.083,"revenue":197.99,"rpr":0.165,"unsub_rate":0.25},
+        {"name":"25% Off — Kid #1","label":"Discount","recipients":1134,"open_rate":53.94,"click_rate":2.13,"cvr":0.089,"revenue":57.05,"rpr":0.050,"unsub_rate":0.62},
+        {"name":"25% Off — Kid #2","label":"Discount","recipients":1047,"open_rate":52.83,"click_rate":1.63,"cvr":0.096,"revenue":52.50,"rpr":0.050,"unsub_rate":0.29}
+      ]
+    },
+    "sms": {
+      "agg": {
+        "recipients": 6529,
+        "open_rate": 0,
+        "click_rate": 4.92,
+        "cvr": 0.06,
+        "revenue": 385.03,
+        "rpr": 0.059,
+        "unsubscribes": 42
+      },
+      "messages": [
+        {"name":"SMS — Rewards","label":"Offer","recipients":3151,"open_rate":0,"click_rate":5.35,"cvr":0.032,"revenue":69.03,"rpr":0.022,"unsub_rate":0.73},
+        {"name":"SMS — 25% Off","label":"Discount","recipients":3378,"open_rate":0,"click_rate":4.50,"cvr":0.089,"revenue":316.0,"rpr":0.094,"unsub_rate":1.58}
       ]
     }
   }
 };
 
-function fmt$(v){return'$'+(v>=1000?(v/1000).toFixed(1)+'k':v.toFixed(0))}
-function fmtN(v){return(v>=1000?(v/1000).toFixed(1)+'k':v).toString()}
-function pct(v){return(v||0).toFixed(1)+'%'}
-function fmtRPR(v){return'<span style="'+(v>=0.15?'color:#22D45A;font-weight:700':'')+'">$'+v.toFixed(3)+'</span>'}
-function setText(id,v){document.getElementById(id).textContent=v}
-function setHTML(id,v){document.getElementById(id).innerHTML=v}
-function baseOpts(){return{responsive:true,maintainAspectRatio:true,plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:12,font:{size:11}}},tooltip:{mode:'index',intersect:false,backgroundColor:'rgba(0,0,0,.8)',padding:10,titleFont:{size:12,weight:'bold'},bodyFont:{size:11},cornerRadius:4}}}}
+// ── Helpers ────────────────────────────────────────────────────────────────────
+function fmt$(v){ if(v>=1000000) return '$'+(v/1000000).toFixed(1)+'M'; if(v>=1000) return '$'+(v/1000).toFixed(0)+'k'; return '$'+v.toFixed(0); }
+function fmtN(v){ if(v>=1000000) return (v/1000000).toFixed(1)+'M'; if(v>=1000) return (v/1000).toFixed(0)+'k'; return v.toLocaleString(); }
+function pct(v){ return v.toFixed(1)+'%'; }
+function setText(id,t){ const e=document.getElementById(id); if(e) e.textContent=t; }
+function setHTML(id,h){ const e=document.getElementById(id); if(e) e.innerHTML=h; }
+function pilld(cls,t){ return '<span class="pill '+cls+'">'+t+'</span>'; }
+function fmtRPR(v){ const s='$'+v.toFixed(2); return v>=1?'<span style="color:#22D45A;font-weight:700">'+s+'</span>':v<0.1?'<span style="color:#F97316">'+s+'</span>':s; }
+function fmtOR(v){ const s=pct(v); return v>=50?pilld('green',s):v>=40?pilld('amber',s):s; }
 
-function makeOrUpdate(chart,canvasId,type,data,opts){
-  const ctx=document.getElementById(canvasId);
-  if(!ctx) return chart;
-  if(chart) chart.destroy();
-  return new Chart(ctx,{type,data,options:opts||{}});
+// ── State ──────────────────────────────────────────────────────────────────────
+let currentPeriod = 'ltm';
+
+// ── Chart refs ──────────────────────────────────────────────────────────────────
+let chartRevSplit, chartRprCompare, chartEmailSeqRev, chartEmailSeqRates, chartSmsCtr, chartSmsRev;
+
+// Chart.js defaults
+Chart.defaults.color = 'rgba(255,255,255,.45)';
+Chart.defaults.font.family = "\'Segoe UI\', Arial, sans-serif";
+Chart.defaults.font.size = 11;
+const PINK='rgba(255,32,112,.85)',PINK_L='rgba(255,32,112,.25)',PURP='rgba(155,92,246,.85)',PURP_L='rgba(155,92,246,.25)',GREEN='rgba(34,212,90,.85)',AMBER='rgba(245,158,11,.85)',TEAL='rgba(14,165,233,.85)',gridColor='rgba(255,255,255,.06)';
+
+function baseOpts(extra={}){
+  return {responsive:true,maintainAspectRatio:true,
+    plugins:{legend:{labels:{boxWidth:10,padding:14,font:{size:10}}},
+             tooltip:{backgroundColor:'#1a2240',titleColor:'#fff',bodyColor:'rgba(255,255,255,.7)',borderColor:'rgba(255,255,255,.1)',borderWidth:1}},
+    scales:{x:{grid:{display:false},ticks:{color:'rgba(255,255,255,.35)'}},
+            y:{grid:{color:gridColor},ticks:{color:'rgba(255,255,255,.35)'}}},
+    ...extra};
 }
 
-// Create charts at startup
-new Chart(document.getElementById('c-email-seg-rpr'),{
-  type:'bar',
-  data:{labels:['Welcome VIP','Care Guide','Rewards (Non)','Rewards (Mem)','25% Off'],
-        datasets:[{label:'RPR ($)',data:[0.316,0.064,0.042,0.059,0.100],backgroundColor:PINK,borderRadius:2}]},
-  options:baseOpts()
-});
+function makeOrUpdate(ref, id, type, data, options){
+  if(ref){ ref.destroy(); }
+  return new Chart(document.getElementById(id), {type, data, options});
+}
 
-new Chart(document.getElementById('c-email-seg-rates'),{
-  type:'bar',
-  data:{labels:['Welcome VIP','Care Guide','Rewards (Non)','Rewards (Mem)','25% Off Avg'],
-        datasets:[
-          {label:'Open Rate %',data:[80.6,67.4,52.8,53.5,50.2],backgroundColor:PINK,borderColor:PINK,borderWidth:1.5,borderRadius:2},
-          {label:'CVR %',data:[0.385,0.049,0.053,0.103,0.093],backgroundColor:PURP,borderRadius:2}
-        ]},
-  options:baseOpts()
-});
-
-// ── renderData ────────────────────────────────────────────────────────────────
-function renderData(){
-  const d = FLOW_DATA.ltm;
+// ── renderPeriod ────────────────────────────────────────────────────────────────
+function renderPeriod(key){
+  const d = FLOW_DATA[key];
+  if(!d){ console.warn('No data for period:', key); return; }
+  currentPeriod = key;
   const ea = d.email.agg, sa = d.sms.agg;
   const eMsgs = d.email.messages, sMsgs = d.sms.messages;
 
   // ── Overview KPIs ──
-  const totalRev = ea.revenue + sa.revenue;
-  const emailConvs = Math.round(ea.cvr/100 * ea.recipients);
-  const smsConvs   = Math.round(sa.cvr/100 * sa.recipients);
+  const totalRev = (ea.revenue||0) + (sa.revenue||0);
+  const emailConvs = Math.round((ea.cvr||0)/100 * (ea.recipients||0));
+  const smsConvs   = Math.round((sa.cvr||0)/100 * (sa.recipients||0));
   const totalConvs = emailConvs + smsConvs;
-  const totalRecip = ea.recipients + sa.recipients;
-  const blendedRPR = totalRecip > 0 ? totalRev / totalRecip : 0;
+  const totalRecip = (ea.recipients||0) + (sa.recipients||0);
+  const blendedRPR = totalRecip>0 ? totalRev/totalRecip : 0;
 
   setText('ov-rev',    fmt$(totalRev));
   setText('ov-convs',  totalConvs.toLocaleString());
   document.getElementById('ov-convs-sub').innerHTML = emailConvs.toLocaleString()+' email &middot; '+smsConvs.toLocaleString()+' SMS';
   setText('ov-recip',  fmtN(totalRecip));
   document.getElementById('ov-recip-sub').innerHTML = fmtN(ea.recipients)+' email &middot; '+fmtN(sa.recipients)+' SMS';
-  setText('ov-rpr',    '$'+blendedRPR.toFixed(3));
-  document.getElementById('ov-rpr-sub').innerHTML = 'Email $'+ea.rpr.toFixed(3)+' &middot; SMS $'+sa.rpr.toFixed(3);
+  setText('ov-rpr',    '$'+blendedRPR.toFixed(2));
+  document.getElementById('ov-rpr-sub').innerHTML = 'Email $'+ea.rpr.toFixed(2)+' &middot; SMS $'+sa.rpr.toFixed(2);
 
   // ── Channel stats ──
-  const emailRevPct = totalRev > 0 ? Math.round(ea.revenue/totalRev*100) : 0;
-  const smsRevPct   = totalRev > 0 ? Math.round(sa.revenue/totalRev*100) : 0;
+  const emailRevPct = totalRev>0 ? Math.round(ea.revenue/totalRev*100) : 0;
+  const smsRevPct   = totalRev>0 ? Math.round(sa.revenue/totalRev*100) : 0;
   setText('cs-email-recip', ea.recipients.toLocaleString());
   document.getElementById('cs-email-rev').innerHTML = fmt$(ea.revenue)+' <span style="font-size:11px;color:rgba(255,255,255,.3)">('+emailRevPct+'%)</span>';
   setText('cs-email-convs', emailConvs.toLocaleString());
   setText('cs-email-or',    pct(ea.open_rate));
   setText('cs-email-ctr',   pct(ea.click_rate));
   setText('cs-email-cvr',   pct(ea.cvr));
-  setText('cs-email-rpr',   '$'+ea.rpr.toFixed(3));
+  setText('cs-email-rpr',   '$'+ea.rpr.toFixed(2));
   setText('cs-sms-recip',   sa.recipients.toLocaleString());
   document.getElementById('cs-sms-rev').innerHTML = fmt$(sa.revenue)+' <span style="font-size:11px;color:rgba(255,255,255,.3)">('+smsRevPct+'%)</span>';
   setText('cs-sms-convs',   smsConvs.toLocaleString());
   setText('cs-sms-ctr',     pct(sa.click_rate));
   setText('cs-sms-cvr',     pct(sa.cvr));
-  setText('cs-sms-rpr',     '$'+sa.rpr.toFixed(3));
+  setText('cs-sms-rpr',     '$'+sa.rpr.toFixed(2));
 
   // ── Overview charts ──
   chartRevSplit = makeOrUpdate(chartRevSplit,'c-rev-split','doughnut',
@@ -527,24 +675,24 @@ function renderData(){
   const allMsgs = [...eMsgs, ...sMsgs];
   const rprLabels = allMsgs.map(m=>m.name);
   const rprData   = allMsgs.map(m=>m.rpr);
-  const rprBg     = allMsgs.map(m=>m.name.includes('SMS')?PURP:PINK);
+  const rprBg     = allMsgs.map(m=>m.name.startsWith('Welcome')?PINK:(m.name.startsWith('SMS')?PURP:PINK_L));
   chartRprCompare = makeOrUpdate(chartRprCompare,'c-rpr-compare','bar',
     {labels:rprLabels, datasets:[{label:'RPR ($)',data:rprData,backgroundColor:rprBg}]},
     {...baseOpts(),plugins:{...baseOpts().plugins,legend:{display:false}},
-     scales:{x:{grid:{display:false},ticks:{color:'rgba(255,255,255,.35)',maxRotation:45,fontSize:10}},
-             y:{grid:{color:gridColor},ticks:{callback:v=>'$'+v.toFixed(2),color:'rgba(255,255,255,.35)'}}}}
+     scales:{x:{grid:{display:false},ticks:{color:'rgba(255,255,255,.35)',maxRotation:45}},
+             y:{grid:{color:gridColor},ticks:{callback:v=>'$'+v,color:'rgba(255,255,255,.35)'}}}}
   );
 
   // ── Funnel ──
-  const e1 = eMsgs[0];
-  const s1 = sMsgs[0];
+  const e1 = eMsgs.find(m=>m.name.startsWith('Welcome'));
+  const s1 = sMsgs.find(m=>m.name.includes('25%'));
   const eRec=ea.recipients, sRec=sa.recipients;
-  const eClicks=Math.round(e1.click_rate/100*e1.recipients);
+  const eClicks=e1?Math.round(e1.click_rate/100*e1.recipients):0;
   const ePurch=emailConvs;
-  const sClicks=Math.round(s1.click_rate/100*s1.recipients);
+  const sClicks=s1?Math.round(s1.click_rate/100*s1.recipients):0;
   const sPurch=smsConvs;
   const eClickPct=eRec>0?Math.round(eClicks/eRec*100*10)/10:0;
-  const sClickPct=sRec>0?Math.round(sClicks/sRec*100*10)/10:0;
+  const sCtrPct=sRec>0?Math.round(sClicks/sRec*100*10)/10:0;
   const ePurchFromClick=eClicks>0?Math.round(ePurch/eClicks*100):0;
   const sPurchFromClick=sClicks>0?Math.round(sPurch/sClicks*100):0;
   function fBar(label,w,bg,val){
@@ -576,68 +724,51 @@ function renderData(){
   setText('em-kpi-or',        pct(ea.open_rate));
   setText('em-kpi-ctr',       pct(ea.click_rate));
   setText('em-kpi-rev',       fmt$(ea.revenue));
-  const emailAOV = emailConvs > 0 ? ea.revenue/emailConvs : 0;
-  document.getElementById('em-kpi-rev-sub').innerHTML = emailAOV > 0 ? '$'+emailAOV.toFixed(0)+' AOV' : '&mdash;';
-  setText('em-kpi-rpr',       '$'+ea.rpr.toFixed(3));
+  const emailAOV = emailConvs>0 ? ea.revenue/emailConvs : 0;
+  document.getElementById('em-kpi-rev-sub').innerHTML = emailAOV>0 ? '$'+emailAOV.toFixed(0)+' AOV' : '&mdash;';
+  setText('em-kpi-rpr',       '$'+ea.rpr.toFixed(2));
 
   // ── Email sequence table ──
   const EMAIL_TYPE = {
-    'Welcome VIP':'<span class="pill green">Hero</span>',
-    'Care Guide':'<span class="pill blue">Nurture</span>',
+    'Welcome VIP':'<span class="pill green">Intro</span>',
+    'Care Guide':'<span class="pill blue">Content</span>',
     'Rewards — Non-Member':'<span class="pill purple">Offer</span>',
     'Rewards — Member':'<span class="pill purple">Offer</span>'
   };
-  const EMAIL_DESC = {
-    'Welcome VIP':'Thank you + VIP membership',
-    'Care Guide':'Bamboo care instructions',
-    'Rewards — Non-Member':'Join rewards program',
-    'Rewards — Member':'You earned points',
-    '25% Off — Other #1':'Age segment: Other age',
-    '25% Off — Other #2':'Age segment: Other age',
-    '25% Off — Baby #1':'Age segment: Baby',
-    '25% Off — Baby #2':'Age segment: Baby',
-    '25% Off — Toddler #1':'Age segment: Toddler',
-    '25% Off — Toddler #2':'Age segment: Toddler',
-    '25% Off — Kid #1':'Age segment: Kid',
-    '25% Off — Kid #2':'Age segment: Kid'
-  };
   let etbody='';
-  eMsgs.forEach((m,i)=>{
-    const isHero=i===0;
-    const bg=isHero?' style="background:rgba(255,32,112,.05)"':'';
+  eMsgs.forEach(m=>{
+    const isWelcome=m.name.startsWith('Welcome');
+    const bg=isWelcome?' style="background:rgba(255,32,112,.05)"':'';
+    const typeClass = m.label.includes('Discount') ? 'orange' : (m.label.includes('Offer') ? 'purple' : (m.label.includes('Content') ? 'blue' : 'green'));
     etbody+='<tr'+bg+'>';
-    etbody+='<td><span class="msg-name">'+m.name+'</span><span class="msg-step">'+(EMAIL_DESC[m.name]||m.label)+'</span></td>';
+    etbody+='<td><span class="msg-name">'+m.name+'</span><span class="msg-step">'+m.label+'</span></td>';
+    etbody+='<td><span class="pill '+typeClass+'">'+m.label+'</span></td>';
     etbody+='<td class="right mono">'+m.recipients.toLocaleString()+'</td>';
-    etbody+='<td class="right mono">'+m.open_rate.toFixed(1)+'%</td>';
     etbody+='<td class="right mono">'+m.click_rate.toFixed(2)+'%</td>';
-    etbody+='<td class="right mono">'+m.cvr.toFixed(3)+'%</td>';
+    etbody+='<td class="right mono">'+m.cvr.toFixed(2)+'%</td>';
     etbody+='<td class="right mono">'+fmt$(m.revenue)+'</td>';
     etbody+='<td class="right">'+fmtRPR(m.rpr)+'</td>';
     etbody+='<td class="right mono">'+m.unsub_rate.toFixed(2)+'%</td>';
     etbody+='</tr>';
   });
-  setHTML('email-seq-tbody', etbody||'<tr><td colspan="8" style="text-align:center;color:rgba(255,255,255,.3);padding:20px">No data</td></tr>');
+  setHTML('email-seq-tbody', etbody||'<tr><td colspan="8" style="text-align:center;color:rgba(255,255,255,.3);padding:20px">No data for this period</td></tr>');
 
   // ── Email sequence charts ──
   const eLabels = eMsgs.map(m=>m.name);
   const eRevData = eMsgs.map(m=>m.revenue);
   const eCtrData = eMsgs.map(m=>m.click_rate);
-  const eRevBg   = eMsgs.map((m,i)=>{
-    if(i===0) return PINK;
-    if(i===1) return 'rgba(255,32,112,.35)';
-    return 'rgba(255,32,112,.15)';
-  });
+  const eRevBg   = eMsgs.map((m,i)=>m.name.startsWith('Welcome')?PINK:(m.label.includes('Discount')?AMBER:PINK_L));
   chartEmailSeqRev = makeOrUpdate(chartEmailSeqRev,'c-email-seq-rev','bar',
     {labels:eLabels, datasets:[{label:'Revenue ($)',data:eRevData,backgroundColor:eRevBg,borderRadius:4}]},
     {...baseOpts(),plugins:{...baseOpts().plugins,legend:{display:false}},
-     scales:{x:{grid:{display:false},ticks:{color:'rgba(255,255,255,.35)',maxRotation:45,fontSize:9}},
+     scales:{x:{grid:{display:false},ticks:{color:'rgba(255,255,255,.35)'}},
              y:{grid:{color:gridColor},ticks:{callback:v=>v>=1000?'$'+(v/1000).toFixed(0)+'k':'$'+v,color:'rgba(255,255,255,.35)'}}}}
   );
   chartEmailSeqRates = makeOrUpdate(chartEmailSeqRates,'c-email-seq-rates','line',
     {labels:eLabels,
-     datasets:[{label:'Click Rate %',data:eCtrData,borderColor:PINK,backgroundColor:PINK,fill:false,tension:.3,pointRadius:3,borderWidth:2}]},
+     datasets:[{label:'Click Rate %',data:eCtrData,borderColor:PINK,backgroundColor:PINK_L,fill:true,tension:.3,pointRadius:4}]},
     {...baseOpts(),
-     scales:{x:{grid:{display:false},ticks:{color:'rgba(255,255,255,.35)',maxRotation:45,fontSize:9}},
+     scales:{x:{grid:{display:false},ticks:{color:'rgba(255,255,255,.35)'}},
              y:{grid:{color:gridColor},ticks:{callback:v=>v+'%',color:'rgba(255,255,255,.35)'}}}}
   );
 
@@ -645,43 +776,49 @@ function renderData(){
   setText('sms-kpi-recip', fmtN(sa.recipients));
   setText('sms-kpi-ctr',   pct(sa.click_rate));
   setText('sms-kpi-rev',   fmt$(sa.revenue));
-  const smsConvsCalc = smsConvs;
-  const smsAOV = smsConvsCalc > 0 ? sa.revenue/smsConvsCalc : 0;
-  document.getElementById('sms-kpi-rev-sub').innerHTML = smsAOV > 0 ? '$'+smsAOV.toFixed(0)+' AOV' : '&mdash;';
-  const sms2 = sMsgs.find(m=>m.name==='SMS — 25% Off');
-  if(sms2) setText('sms-kpi-unsub', pct(sms2.unsub_rate));
-  setText('sms-kpi-rpr',   '$'+sa.rpr.toFixed(3));
+  const smsConvsCalc = Math.round(sa.cvr/100*sa.recipients);
+  const smsAOV = smsConvsCalc>0 ? sa.revenue/smsConvsCalc : 0;
+  document.getElementById('sms-kpi-rev-sub').innerHTML = smsAOV>0 ? '$'+smsAOV.toFixed(0)+' AOV' : '&mdash;';
+  const sms1 = sMsgs.find(m=>m.name.includes('25%'));
+  if(sms1 && sa.revenue>0){
+    const share=Math.round(sms1.revenue/sa.revenue*100);
+    setText('sms-kpi-sms1-share', share+'%');
+    document.getElementById('sms-kpi-sms1-share-sub').innerHTML = fmt$(sms1.revenue)+' of '+fmt$(sa.revenue);
+  }
+  const smsUnsubAvg = sMsgs.length > 0 ? sMsgs.reduce((sum,m)=>sum+m.unsub_rate,0)/sMsgs.length : 0;
+  setText('sms-kpi-unsub', pct(smsUnsubAvg));
 
   // ── SMS message table ──
   const SMS_DESC={
-    'SMS — Rewards':'Rewards program offer',
-    'SMS — 25% Off':'25% OFF promotion'
+    'SMS — Rewards':'Rewards or loyalty offer',
+    'SMS — 25% Off':'Discount incentive'
   };
   const SMS_PILL={
     'SMS — Rewards':'<span class="pill purple">Rewards</span>',
-    'SMS — 25% Off':'<span class="pill amber">Promo</span>'
+    'SMS — 25% Off':'<span class="pill orange">Discount</span>'
   };
   let stbody='';
   sMsgs.forEach(m=>{
+    const bg=' ';
     const unsubStyle=m.unsub_rate>=4?' style="color:#EF4444;font-weight:700"':m.unsub_rate>=3?' style="color:#F59E0B;font-weight:700"':'';
-    stbody+='<tr>';
+    stbody+='<tr'+bg+'>';
     stbody+='<td><span class="msg-name">'+m.name+'</span><span class="msg-step">'+(SMS_DESC[m.name]||m.label)+'</span></td>';
     stbody+='<td>'+(SMS_PILL[m.name]||'')+'</td>';
     stbody+='<td class="right mono">'+m.recipients.toLocaleString()+'</td>';
     stbody+='<td class="right mono">'+m.click_rate.toFixed(2)+'%</td>';
-    stbody+='<td class="right mono">'+m.cvr.toFixed(3)+'%</td>';
+    stbody+='<td class="right mono">'+m.cvr.toFixed(2)+'%</td>';
     stbody+='<td class="right mono">'+fmt$(m.revenue)+'</td>';
     stbody+='<td class="right">'+fmtRPR(m.rpr)+'</td>';
     stbody+='<td class="right mono" '+unsubStyle+'>'+m.unsub_rate.toFixed(2)+'%</td>';
     stbody+='</tr>';
   });
-  setHTML('sms-msg-tbody', stbody||'<tr><td colspan="8" style="text-align:center;color:rgba(255,255,255,.3);padding:20px">No data</td></tr>');
+  setHTML('sms-msg-tbody', stbody||'<tr><td colspan="8" style="text-align:center;color:rgba(255,255,255,.3);padding:20px">No data for this period</td></tr>');
 
   // ── SMS charts ──
   const sCtrLabels = sMsgs.map(m=>m.name);
   const sCtrData   = sMsgs.map(m=>m.click_rate);
   const sUnsubData = sMsgs.map(m=>m.unsub_rate);
-  const sCtrBg     = sMsgs.map((m,i)=>i===0?PURP:AMBER);
+  const sCtrBg     = sMsgs.map((m,i)=>m.name.includes('25%')?PURP:PURP_L);
   chartSmsCtr = makeOrUpdate(chartSmsCtr,'c-sms-ctr','bar',
     {labels:sCtrLabels,
      datasets:[
@@ -696,14 +833,72 @@ function renderData(){
   const sRevBg   = sMsgs.map((m,i)=>['rgba(155,92,246,.8)','rgba(155,92,246,.5)'][Math.min(i,1)]);
   chartSmsRev = makeOrUpdate(chartSmsRev,'c-sms-rev','bar',
     {labels:sCtrLabels,
-     datasets:[{label:'Revenue ($)',data:sRevData,backgroundColor:sRevBg,borderRadius:4}]},
+     datasets:[
+       {label:'Revenue ($)',data:sRevData,backgroundColor:sRevBg,borderRadius:4,yAxisID:'y'},
+       {label:'RPR ($)',data:sRprData,type:'line',borderColor:GREEN,backgroundColor:'transparent',pointRadius:5,fill:false,yAxisID:'y2'}
+     ]},
     {...baseOpts(),
-     scales:{x:{grid:{display:false},ticks:{color:'rgba(255,255,255,.35)'}},
-             y:{grid:{color:gridColor},ticks:{callback:v=>v>=1000?'$'+(v/1000).toFixed(0)+'k':'$'+v,color:'rgba(255,255,255,.35)'},position:'left'}}}
+     scales:{
+       x:{grid:{display:false},ticks:{color:'rgba(255,255,255,.35)'}},
+       y:{grid:{color:gridColor},ticks:{callback:v=>v>=1000?'$'+(v/1000).toFixed(0)+'k':'$'+v,color:'rgba(255,255,255,.35)'},position:'left'},
+       y2:{grid:{display:false},ticks:{callback:v=>'$'+v,color:'rgba(255,255,255,.25)'},position:'right'}
+     }}
   );
+
+  // ── SMS Waterfall ──
+  const maxSmsRev = Math.max(...sMsgs.map(m=>m.revenue),1);
+  let wf='';
+  const wfAlpha=['rgba(155,92,246,.8)','rgba(155,92,246,.5)'];
+  sMsgs.forEach((m,i)=>{
+    const w=Math.max(Math.round(m.revenue/maxSmsRev*100),1);
+    const pctShare=sa.revenue>0?Math.round(m.revenue/sa.revenue*100):0;
+    wf+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">';
+    wf+='<div style="font-size:11px;color:rgba(255,255,255,.4);width:60px;text-align:right">'+m.name+'</div>';
+    wf+='<div style="flex:1"><div style="background:'+wfAlpha[Math.min(i,1)]+';height:32px;border-radius:4px;display:flex;align-items:center;padding:0 12px;font-size:12px;font-weight:700;width:'+w+'%">'+fmt$(m.revenue)+(w>25?' <span style="font-size:10px;font-weight:400;margin-left:8px;opacity:.7">'+pctShare+'% of total</span>':'')+'</div></div>';
+    wf+='</div>';
+  });
+  setHTML('sms-waterfall', wf);
 }
 
-// ── Channel filter bar ──────────────────────────────────────────────────
+// ── Period / channel filter bar ──────────────────────────────────────────────────
+function toISO(d){ return d.toISOString().slice(0,10); }
+function relDates(days){ const e=new Date(),s=new Date(); s.setDate(s.getDate()-days); return {label:'Last '+days+' Days',start:toISO(s),end:toISO(e)}; }
+const SP_PERIODS = {
+  '7d':  ()=>relDates(7),
+  '30d': ()=>relDates(30),
+  '3m':  ()=>relDates(90),
+  ltm:   ()=>({label:'Last 12 Months', start:'2025-04-01', end:'2026-03-31'})
+};
+const SP_PRESET_IDS = '#sp-7d,#sp-30d,#sp-3m,#sp-ltm';
+
+function spPreset(preset, btn){
+  document.querySelectorAll(SP_PRESET_IDS).forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const p = SP_PERIODS[preset]();
+  document.getElementById('sp-period-label').textContent = p.label;
+  document.getElementById('sp-dt-start').value = p.start;
+  document.getElementById('sp-dt-end').value   = p.end;
+  renderPeriod(preset);
+}
+
+function spDateChange(){
+  const s = document.getElementById('sp-dt-start').value;
+  const e = document.getElementById('sp-dt-end').value;
+  if(!s || !e) return;
+  document.querySelectorAll(SP_PRESET_IDS).forEach(b=>b.classList.remove('active'));
+  const matched = Object.entries(SP_PERIODS).find(([,fn])=>{ const p=fn(); return p.start===s&&p.end===e; });
+  if(matched){
+    const el=document.getElementById('sp-'+matched[0]); if(el) el.classList.add('active');
+    document.getElementById('sp-period-label').textContent = matched[1]().label;
+    renderPeriod(matched[0]);
+  } else {
+    const fmt=d=>new Date(d+'T00:00:00').toLocaleDateString('en-GB',{month:'short',year:'numeric'});
+    document.getElementById('sp-period-label').textContent = fmt(s)+' \u2013 '+fmt(e);
+    const closest = Object.keys(SP_PERIODS).find(k=>{ const p=SP_PERIODS[k](); return p.start<=s&&p.end>=e; });
+    if(closest) renderPeriod(closest);
+  }
+}
+
 function spChannel(ch, btn){
   document.querySelectorAll('#ch-all,#ch-email,#ch-sms').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
@@ -721,7 +916,10 @@ function switchTab(id, btn){
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 (function(){
-  renderData();
+  const p = SP_PERIODS['ltm']();
+  document.getElementById('sp-dt-start').value = p.start;
+  document.getElementById('sp-dt-end').value   = p.end;
+  renderPeriod('ltm');
 })();
 </script>
 </body>
