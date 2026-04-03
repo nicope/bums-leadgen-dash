@@ -276,19 +276,21 @@ function fmt(n,dp=0){
 }
 function fmtP(n,dp=1){return n==null?'—':n.toFixed(dp)+'%';}
 function renderKPIs(rows){
-  const tV=rows.reduce((s,r)=>s+r.visits,0);
-  const tNV=rows.reduce((s,r)=>s+r.new_vis,0);
+  const hasTraffic=rows.some(r=>r.visits>0);
+  const tV=rows.reduce((s,r)=>s+(r.visits||0),0);
+  const tNV=rows.reduce((s,r)=>s+(r.new_vis||0),0);
+  const tM=rows.reduce((s,r)=>s+(r.modal||0),0);
   const tE=rows.reduce((s,r)=>s+r.email,0);
   const tS=rows.reduce((s,r)=>s+r.sms,0);
   const aLGR=tNV>0?(tE/tNV*100):0;
-  const aMC=rows.reduce((s,r)=>s+(r.modal_cov||0),0)/(rows.length||1);
+  const aMC=hasTraffic?rows.reduce((s,r)=>s+(r.modal_cov||0),0)/(rows.length||1):(tNV>0?tM/tNV*100:0);
   const kpis=[
-    {l:'Total Visitors',  v:fmt(tV),    s:'all channels',               c:''},
-    {l:'New Visitors',    v:fmt(tNV),   s:fmtP(tV>0?tNV/tV*100:0)+' of total',c:'teal'},
-    {l:'Modal Coverage',  v:fmtP(aMC),  s:'modal views / new visitors', c:'purple'},
+    {l:'Total Visitors',  v:hasTraffic?fmt(tV):'—',    s:hasTraffic?'all channels':'weekly only',               c:''},
+    {l:'New Visitors',    v:hasTraffic?fmt(tNV):'—',   s:hasTraffic?fmtP(tV>0?tNV/tV*100:0)+' of total':'weekly only',c:'teal'},
+    {l:'Modal Views',     v:fmt(tM),  s:'popup impressions', c:'purple'},
     {l:'Email Leads',     v:fmt(tE),    s:'Subscribed to Email',         c:'green'},
     {l:'SMS Leads',       v:fmt(tS),    s:'Subscribed to SMS',           c:'orange'},
-    {l:'Leadgen Rate',    v:fmtP(aLGR), s:'email leads / new visitors',  c:'pink'},
+    {l:'Leadgen Rate',    v:hasTraffic?fmtP(aLGR):'—', s:hasTraffic?'email leads / new visitors':'weekly only',  c:'pink'},
   ];
   document.getElementById('kpi-strip').innerHTML=kpis.map(k=>`
     <div class="kpi ${k.c}"><div class="kpi-label">${k.l}</div>
@@ -335,9 +337,9 @@ function buildAll(rows, grain){
 
   // ── Traffic with % labels inside bars ─────────────────────────────────────
   {
-    const newData  = rows.map(r=>r.new_vis);
-    const retData  = rows.map(r=>Math.max(0,r.visits-r.new_vis));
-    const totals   = rows.map(r=>r.visits);
+    const newData  = rows.map(r=>r.new_vis||0);
+    const retData  = rows.map(r=>Math.max(0,(r.visits||0)-(r.new_vis||0)));
+    const totals   = rows.map(r=>r.visits||0);
 
     // datalabels formatter: show % of total for each segment
     const dlCfg = {
@@ -369,7 +371,7 @@ function buildAll(rows, grain){
 
   // ── Modal coverage ─────────────────────────────────────────────────────────
   {
-    const vals=rows.map(r=>r.modal_cov);
+    const vals=rows.map(r=>r.modal_cov!=null?r.modal_cov:(r.new_vis>0?r.modal/r.new_vis*100:null));
     const ds=[
       {label:'Modal Coverage %',data:vals,borderColor:'#C06EFF',backgroundColor:'rgba(192,110,255,.1)',borderWidth:2,tension,fill:true,pointRadius:pr,order:1,datalabels:{display:false}},
       {label:'90% target',      data:rows.map(()=>90),borderColor:'rgba(255,255,255,.3)',borderDash:[5,5],borderWidth:1.5,pointRadius:0,fill:false,order:2,datalabels:{display:false}},
@@ -381,7 +383,7 @@ function buildAll(rows, grain){
 
   // ── % New Visitors ─────────────────────────────────────────────────────────
   {
-    const vals=rows.map(r=>r.pct_new);
+    const vals=rows.map(r=>r.pct_new!=null?r.pct_new:(r.visits>0?r.new_vis/r.visits*100:null));
     const ds=[
       {label:'% New Visitors',data:vals,borderColor:'#FF2070',backgroundColor:'rgba(255,32,112,.1)',borderWidth:2,tension,fill:true,pointRadius:pr,order:1,datalabels:{display:false}},
     ];
@@ -398,7 +400,7 @@ function buildAll(rows, grain){
 
   // ── Leadgen rate ───────────────────────────────────────────────────────────
   {
-    const vals=rows.map(r=>r.leadgen_rate);
+    const vals=rows.map(r=>r.leadgen_rate!=null?r.leadgen_rate:(r.new_vis>0?r.email/r.new_vis*100:null));
     const ds=[
       {label:'Leadgen Rate %',data:vals,borderColor:'#FF2070',backgroundColor:'rgba(255,32,112,.1)',borderWidth:2,tension,fill:true,pointRadius:pr,order:1,datalabels:{display:false}},
     ];
@@ -409,7 +411,7 @@ function buildAll(rows, grain){
 
   // ── SMS completion ─────────────────────────────────────────────────────────
   {
-    const vals=rows.map(r=>r.sms_completion);
+    const vals=rows.map(r=>r.sms_completion!=null?r.sms_completion:(r.email>0?r.sms/r.email*100:null));
     const ds=[
       {label:'SMS Completion %',data:vals,borderColor:'#F97316',backgroundColor:'rgba(249,115,22,.12)',borderWidth:2,tension,fill:true,pointRadius:pr,order:1,datalabels:{display:false}},
       {label:'40% benchmark',   data:rows.map(()=>40),borderColor:'rgba(255,255,255,.25)',borderDash:[5,5],borderWidth:1.5,pointRadius:0,fill:false,order:2,datalabels:{display:false}},
@@ -430,8 +432,8 @@ function buildAll(rows, grain){
 
   // ── Dual vs leadgen ────────────────────────────────────────────────────────
   {
-    const dualVals=rows.map(r=>r.dual_rate);
-    const lgrVals =rows.map(r=>r.leadgen_rate);
+    const dualVals=rows.map(r=>r.dual_rate!=null?r.dual_rate:(r.new_vis>0?(r.email+r.sms)/r.new_vis*100:null));
+    const lgrVals =rows.map(r=>r.leadgen_rate!=null?r.leadgen_rate:(r.new_vis>0?r.email/r.new_vis*100:null));
     const ds=[
       {label:'Dual Lead Rate %',            data:dualVals,borderColor:'#C06EFF',backgroundColor:'rgba(192,110,255,.12)',borderWidth:2.5,tension,fill:true, pointRadius:pr,order:1,datalabels:{display:false}},
       {label:'Leadgen Rate % (Email only)', data:lgrVals, borderColor:'#FF2070',backgroundColor:'transparent',         borderWidth:1.5,tension,fill:false,pointRadius:pr,order:2,borderDash:[4,3],datalabels:{display:false}},
